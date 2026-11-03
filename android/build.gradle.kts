@@ -1,3 +1,5 @@
+import javax.inject.Inject
+
 // Встроенный в AGP Kotlin — 2.2, а Filament тянет stdlib 2.4: компилятор
 // должен быть не старше библиотеки.
 buildscript {
@@ -21,10 +23,6 @@ android {
         ndk { abiFilters += listOf("armeabi-v7a", "arm64-v8a") }
     }
 
-    // Пробник берёт пак (собирается tools/make-test-pack.js или convert-pack.ps1)
-    // и фоны прямо из веб-части: копий в android/ нет.
-    sourceSets["main"].assets.srcDirs("../assets/models", "../assets/backgrounds/webp", "../assets/coloring")
-
     // Один ключ на все сборки: APK с другим ключом не встанет поверх, и
     // переустановка сотрёт рисунки на ТВ (docs/adr/0001-tv-hub-webview.md).
     // Пароль кладётся в ~/.gradle/gradle.properties: aquaStorePassword=…
@@ -46,9 +44,40 @@ android {
     }
 }
 
+// Веб-часть, которую ТВ раздаёт телефону и из которой сам берёт пак и фоны:
+// те же пути, что у сайта, под web/ в assets APK. Копий в android/ нет —
+// пак собирается tools/make-test-pack.js или convert-pack.ps1 на месте.
+// PNG-фоны (22 МБ) не едут: у каждого есть webp той же картинки.
+abstract class WebRoot : DefaultTask() {
+    @get:InputFiles abstract val sources: ConfigurableFileCollection
+    @get:OutputDirectory abstract val outputDir: DirectoryProperty
+    @get:Inject abstract val fs: FileSystemOperations
+
+    @TaskAction fun copy() {
+        fs.sync {
+            from(sources.asFileTree)
+            into(outputDir.dir("web"))
+        }
+    }
+}
+
+val webRoot = tasks.register<WebRoot>("webRoot") {
+    sources.from(fileTree("..") {
+        include("demos/realistic-tank.html", "capture.html", "admin.html", "print.html", "favicon.ico", "assets/**", "vendor/**")
+        exclude("assets/backgrounds/*.png", "assets/models/README.md")
+    })
+    outputDir.set(layout.buildDirectory.dir("webroot"))
+}
+
+androidComponents {
+    onVariants { it.sources.assets?.addGeneratedSourceDirectory(webRoot, WebRoot::outputDir) }
+}
+
 dependencies {
     val filament = "1.77.3"
     implementation("com.google.android.filament:filament-android:$filament")
     implementation("com.google.android.filament:gltfio-android:$filament")
     implementation("com.google.android.filament:filamat-android:$filament")
+    implementation("org.nanohttpd:nanohttpd:2.3.1")
+    implementation("com.google.zxing:core:3.5.3")
 }

@@ -43,6 +43,9 @@ class Aquarium(private val ctx: Context, private val engine: Engine, private val
     private val outfits = HashMap<FishModel.Body, HashMap<Boolean, List<Slot>>>()
     /** Вид → длина из манифеста раскрасок: единственный список видов. */
     private val lengths: Map<String, Float>
+    /** Виды, у которых есть лист раскраски, — их принимает сервер. */
+    val kinds: Set<String> get() = lengths.keys
+    val fishCount get() = fishes.size
     private val sampler = TextureSampler(TextureSampler.MinFilter.LINEAR_MIPMAP_LINEAR,
         TextureSampler.MagFilter.LINEAR, TextureSampler.WrapMode.CLAMP_TO_EDGE)
     private val main = Handler(Looper.getMainLooper())
@@ -72,7 +75,7 @@ class Aquarium(private val ctx: Context, private val engine: Engine, private val
         camera.lookAt(0.0, Space.CAM_Y.toDouble(), Space.CAM_Z.toDouble(), 0.0, Space.CAM_Y.toDouble(), 0.0, 0.0, 1.0, 0.0)
         camera.setExposure(1f)   // экспозицию сайта (0.92) применяет шейдер
 
-        val manifest = JSONObject(ctx.assets.open("manifest.json").use { it.readBytes().toString(Charsets.UTF_8) })
+        val manifest = JSONObject(ctx.assets.open("web/assets/coloring/manifest.json").use { it.readBytes().toString(Charsets.UTF_8) })
         val list = manifest.getJSONArray("fish")
         lengths = (0 until list.length()).associate { list.getJSONObject(it).let { f -> f.getString("name") to f.getDouble("length").toFloat() } }
 
@@ -242,7 +245,7 @@ class Aquarium(private val ctx: Context, private val engine: Engine, private val
     // Имя фона — как у сервера («05-0.png»); на ТВ лежат лёгкие webp тех же картинок.
     private fun applyBackground(name: String) {
         if (name == bgName) return
-        val bmp = runCatching { ctx.assets.open(name.substringBeforeLast('.') + ".webp").use { BitmapFactory.decodeStream(it) } }
+        val bmp = runCatching { ctx.assets.open(BG_DIR + name.substringBeforeLast('.') + ".webp").use { BitmapFactory.decodeStream(it) } }
             .getOrNull() ?: return
         bgName = name
         bgImageAspect = bmp.width.toFloat() / bmp.height
@@ -257,7 +260,7 @@ class Aquarium(private val ctx: Context, private val engine: Engine, private val
     }
 
     private fun randomBackground(): String =
-        ctx.assets.list("")!!.filter { it.endsWith(".webp") }.random().substringBeforeLast('.') + ".png"
+        ctx.assets.list(BG_DIR.trimEnd('/'))!!.filter { it.endsWith(".webp") }.random().substringBeforeLast('.') + ".png"
 
     // Режим cover сайта: картинка заполняет кадр, лишнее срезается.
     private fun fitBackground() {
@@ -269,6 +272,8 @@ class Aquarium(private val ctx: Context, private val engine: Engine, private val
 
     companion object {
         const val MAX_FISH = 40     // PAINTED_MAX сайта
+        // Фоны на ТВ — webp тех же картинок, что PNG в assets/backgrounds сайта.
+        const val BG_DIR = "web/assets/backgrounds/webp/"
         const val PACK_LEN = 2.2f   // длина готовой рыбки вида без раскраски
         // Рисунки с прежних моделей (Free3D, из игры убраны) — на похожие виды пака.
         val LEGACY_KIND = mapOf("chromis" to "fusilierfish", "angelfish" to "bluetang",

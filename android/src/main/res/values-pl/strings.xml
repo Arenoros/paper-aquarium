@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Akwarium</string>
+    <string name="qr_title">Skieruj tu aparat telefonu</string>
+    <string name="qr_sub">Telefon musi być w tej samej sieci Wi-Fi</string>
+    <string name="hint_ok">OK na pilocie — kod QR dla telefonu</string>
+    <string name="no_network">Brak sieci: podłącz telewizor do Wi-Fi</string>
+</resources>

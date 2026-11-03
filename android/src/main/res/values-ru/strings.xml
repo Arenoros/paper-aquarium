@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Аквариум</string>
+    <string name="qr_title">Наведи камеру телефона</string>
+    <string name="qr_sub">Телефон должен быть в той же Wi-Fi</string>
+    <string name="hint_ok">OK на пульте — QR для телефона</string>
+    <string name="no_network">Нет сети: подключи телевизор к Wi-Fi</string>
+</resources>

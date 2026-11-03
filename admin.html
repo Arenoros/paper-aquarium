@@ -298,7 +298,12 @@
       if (!r.ok) { Tank.forget(Tank.id); location.replace('/'); return null; }
       return r.json();
     })
-    .then(function (m) { if (m) { meta = m; renderMeta(); checkAccess(); } })
+    .then(function (m) {
+      if (!m) return;
+      meta = m; renderMeta(); checkAccess();
+      var add = document.getElementById('bg-add');
+      if (m.local && add) add.remove();   // фоны могли успеть нарисоваться раньше meta
+    })
     .catch(function () {});
 
   // ── замок ──
@@ -601,7 +606,8 @@
     add.type = 'button';
     add.innerHTML = '<span class="plus">+</span><span class="t">' + I18N.t('adm.bg.add') + '</span>';
     add.onclick = function () { bgFile.click(); };
-    bgBox.appendChild(add);
+    // на ТВ (meta.local) своих фонов нет — только встроенные
+    if (!meta.local) bgBox.appendChild(add);
 
     renderSettings();
   }

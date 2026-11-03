@@ -2087,6 +2087,10 @@
       // честнее предупредить до перехода, чем показать замок после.
       tankLocked = !!meta.locked;
       renderKey();
+      // Аквариум живёт на ТВ (android/): пароля, пина и списка аквариумов там нет.
+      if (meta.local) {
+        ['m-key', 'm-home', 'm-tvpin'].forEach(function (id) { document.getElementById(id).hidden = true; });
+      }
       if (meta.locked && !Tank.pass()) {
         document.querySelector('#m-fish i').textContent = I18N.t('menu.fish.sub.pass');
       }

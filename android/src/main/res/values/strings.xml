@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Aquarium</string>
+    <string name="qr_title">Point your phone camera here</string>
+    <string name="qr_sub">The phone must be on the same Wi-Fi</string>
+    <string name="hint_ok">Press OK — QR code for the phone</string>
+    <string name="no_network">No network: connect the TV to Wi-Fi</string>
+</resources>

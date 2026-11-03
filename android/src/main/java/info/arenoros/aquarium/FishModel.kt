@@ -65,6 +65,8 @@ class FishModel private constructor(
     companion object {
         // Плавники и тело различаем по именам костей: в паке плавники так
         // и названы (Discus1_fin_l_4_tip41), а позвоночник — Bone01…Bone13.
+        const val PACK = "web/assets/models/pack/"
+        const val PACK_LOD = "web/assets/models/pack-lod1/"
         private val FIN_BONE = Regex("fin|pect|dors|anal|pelv|tip", RegexOption.IGNORE_CASE)
 
         fun load(
@@ -83,8 +85,8 @@ class FishModel private constructor(
                 resources.loadResources(asset)
                 return asset to gltf
             }
-            val (asset, gltf) = open("pack/") ?: return null
-            val far = open("pack-lod1/")?.first
+            val (asset, gltf) = open(PACK) ?: return null
+            val far = open(PACK_LOD)?.first
             val tm = engine.transformManager
 
             val skel = fromSkeleton(asset.instance, tm)
@@ -139,7 +141,7 @@ class FishModel private constructor(
                 name, length, loader, asset, far, pivot, beat,
                 if (a.animationCount > 0) max(a.getAnimationDuration(0), 1e-3f) else 1f,
                 Bend(axisVec(local.body, 1f), axisVec(local.lat, 1f), local.min[local.body], local.max[local.body], local.headAtMax),
-                planar, gltf.baseColorImage()?.let { texture("pack/$name/$it") }, pinned, keep
+                planar, gltf.baseColorImage()?.let { texture("$PACK$name/$it") }, pinned, keep
             )
         }
 
