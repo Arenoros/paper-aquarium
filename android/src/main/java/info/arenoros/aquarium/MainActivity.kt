@@ -109,7 +109,7 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
 
         aquarium.sync()
         // Пустой аквариум сразу показывает, как в него попасть; иначе — подсказка про OK.
-        if (aquarium.fishCount == 0) showQr() else flashHint()
+        if (store.count() == 0) showQr() else flashHint()
         onNewIntent(intent)
     }
 
@@ -123,7 +123,7 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
     override fun onStart() {
         super.onStart()
         server = runCatching {
-            TankServer(assets, store, aquarium.kinds, events).apply { start(5000, false) }
+            TankServer(assets, store, aquarium.kinds, events, cacheDir).apply { start(5000, false) }
         }.onFailure { Log.e("aqua", "сервер не поднялся на ${TankServer.PORT}", it) }.getOrNull()
         aquarium.sync()   // пока нас не было, мог смениться фон или список
     }

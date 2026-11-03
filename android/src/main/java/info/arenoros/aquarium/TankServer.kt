@@ -23,6 +23,7 @@ class TankServer(
     private val store: TankStore,
     private val kinds: Set<String>,
     private val events: Events,
+    private val cache: java.io.File,
 ) : NanoHTTPD(PORT) {
     interface Events {
         fun fishChanged()
@@ -45,6 +46,7 @@ class TankServer(
         // обратный слеш и «..» — мимо раздачи статики на любой ОС
         if (uri.contains("..") || uri.contains('\\')) return notFound()
         if (uri == "/" || uri == "/index.html") return redirect(TANK_URL)
+        if (uri == "/backup.zip") return backup(s)
         if (uri.startsWith("/api/")) return api(s, uri)
         PAGES[uri]?.let { return file(it) }
         if (uri.startsWith("/assets/") || uri.startsWith("/vendor/") || uri == "/favicon.ico" || uri == "/print.html") {
@@ -112,6 +114,38 @@ class TankServer(
             m == Method.POST && u == "/preview" -> json(Response.Status.OK, """{"ok":true}""")
             else -> json(Response.Status.NOT_FOUND, """{"error":"unknown api"}""")
         }
+    }
+
+    // Бэкап — zip папки аквариума: GET скачать, POST — восстановить из него.
+    //   curl -o aquarium.zip http://<ТВ>:8000/backup.zip
+    //   curl --data-binary @aquarium.zip -H "Content-Type: application/zip" http://<ТВ>:8000/backup.zip
+    private fun backup(s: IHTTPSession): Response = when (s.method) {
+        Method.GET -> {
+            val f = java.io.File(cache, "backup.zip")
+            store.backup(f)
+            newFixedLengthResponse(Response.Status.OK, "application/zip", f.inputStream(), f.length()).apply {
+                addHeader("Content-Disposition", "attachment; filename=\"aquarium-backup.zip\"")
+            }
+        }
+        Method.POST, Method.PUT -> {
+            val len = s.headers["content-length"]?.toLongOrNull() ?: -1
+            if (len <= 0 || len > RESTORE_BYTES) json(Response.Status.PAYLOAD_TOO_LARGE, """{"error":"нужен zip до 512 МБ"}""")
+            else {
+                val f = java.io.File(cache, "restore.zip")
+                f.outputStream().use { out ->
+                    val buf = ByteArray(64 * 1024)
+                    var left = len
+                    val input = s.inputStream
+                    while (left > 0) { val n = input.read(buf, 0, minOf(buf.size.toLong(), left).toInt()); if (n < 0) break; out.write(buf, 0, n); left -= n }
+                }
+                val ok = store.restore(f)
+                f.delete()
+                if (ok) { Log.i("aqua", "аквариум восстановлен из бэкапа"); events.fishChanged(); events.settingsChanged() }
+                if (ok) json(Response.Status.OK, """{"ok":true,"fishCount":${store.count()}}""")
+                else json(Response.Status.BAD_REQUEST, """{"error":"это не бэкап аквариума"}""")
+            }
+        }
+        else -> notFound()
     }
 
     // В аквариуме рыбки двух пород, и обе заводятся здесь (как у server.js):
@@ -224,6 +258,7 @@ class TankServer(
         private const val API = "/api/t/$TANK_ID"
         private const val FISH_BYTES = 3 * 1024 * 1024
         private const val BODY_BYTES = 12L * 1024 * 1024
+        private const val RESTORE_BYTES = 512L * 1024 * 1024
         private val PAGES = mapOf(
             TANK_URL to "demos/realistic-tank.html", "$TANK_URL/" to "demos/realistic-tank.html",
             "$TANK_URL/capture" to "capture.html", "$TANK_URL/admin" to "admin.html",

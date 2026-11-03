@@ -244,6 +244,67 @@ tools/make-coloring.js`. Model requirements, how to add a species and the
 conversion pitfalls are in
 [assets/models/README.md](assets/models/README.md) (in Russian).
 
+## TV app: the aquarium without internet
+
+`android/` is the same aquarium as an Android TV app. No internet needed: the
+TV serves the pages and takes the fish itself, and a phone on the same Wi-Fi
+opens the aquarium from the QR code on screen — capture, ready-made fish,
+feeding and backgrounds work as on the site. Why this rather than a separate
+phone app: [docs/adr/0001](docs/adr/0001-tv-hub-webview.md).
+
+The TV scene is native, on Filament: the site scene in a WebView ran at 5 fps
+on a weak TV, the native one runs at 30 with 40 fish and looks the same
+([docs/adr/0002](docs/adr/0002-native-filament-on-tv.md)). Needs Android 7+
+with OpenGL ES 3.0.
+
+**Building.** You need the Android SDK and JDK 17+; Android Studio is
+optional. The model pack must be in `assets/models/pack/` (see above) — the
+APK takes it and the web part straight from the repository. Sign with a
+permanent key: an APK signed differently will not install over the old one,
+and reinstalling wipes the drawings on the TV. The key password goes into
+`~/.gradle/gradle.properties`:
+
+```properties
+aquaStorePassword=…
+aquaKeystore=path/to/key.jks
+```
+
+```bash
+cd android
+./gradlew assembleRelease
+adb connect <TV address>
+adb install -r build/outputs/apk/release/paper-aquarium-tv-release.apk
+```
+
+Without the purchased pack, the test one will do for a check:
+`node tools/make-test-pack.js` and
+`node tools/make-test-pack.js --out pack-lod1 --grid 24` (far LOD).
+
+**Remote.** OK shows the QR code and address for the phone, Back hides it or
+exits. An empty aquarium shows the QR code by itself. The aquarium only takes
+fish while it is open; meanwhile the capture page on the phone offers
+"Send again".
+
+**What the TV does not have.** One aquarium, no code, password or PIN: the
+network is a home one, and deleted fish go to the trash. No custom
+backgrounds — built-in ones only.
+
+**Backup.** adb cannot reach the app data on Android 14, so the backup is a
+zip over HTTP, with all drawings and the trash:
+
+```bash
+curl -o aquarium.zip http://<TV address>:8000/backup.zip
+```
+
+To restore, send the same archive back; the previous folder stays on the TV
+next to it (`tank.prev`):
+
+```bash
+curl --data-binary @aquarium.zip -H "Content-Type: application/zip" http://<TV address>:8000/backup.zip
+```
+
+When the app is uninstalled, Android asks whether to keep its data.
+
 ## Tools
 
 | What | Where | Why |
@@ -253,6 +314,7 @@ conversion pitfalls are in
 | PDF | `node tools/make-pdf.js` | prints the sheets into `raskraski.<lang>.pdf` via headless Chrome; run after make-coloring |
 | Capture test | `/tools/test-capture.html` | runs every sheet through skew, rotation and noise |
 | Pack build | `tools/convert-pack.ps1` | FBX from the purchased archive → glTF |
+| Test pack | `node tools/make-test-pack.js` | fish from the `contours.json` silhouettes without buying anything — for measurements and checks; `--fill <code> N` fills an aquarium |
 
 After the sheets change, the capture test must report no failures: the markers
 are chosen so that the codes of any two species differ in at least four cells.

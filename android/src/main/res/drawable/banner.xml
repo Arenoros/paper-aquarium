@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Баннер в ряду приложений Android TV (320×180): иконка сайта на цвете воды. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape><solid android:color="#0E4A6E" /></shape>
+    </item>
+    <item android:drawable="@drawable/app_icon" android:gravity="center"
+        android:width="96dp" android:height="96dp" />
+</layer-list>

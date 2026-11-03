@@ -47,6 +47,8 @@
   .menu .rename[disabled] { cursor: default; }
   .menu .rename[disabled]:hover { color: inherit; }
   .menu .who { margin: 4px 0 14px; font-size: 12px; color: var(--muted); }
+  /* Код спрятан (витрина, аквариум на ТВ) — разделитель перед ним тоже. */
+  .menu .who .sep:has(+ .code[hidden]) { display: none; }
   /* Код — он же приглашение: нажатие копирует ссылку на аквариум, чтобы
      открыть его на телефоне или отправить бабушке. */
   .menu .who .code {
@@ -212,7 +214,7 @@
       <h2><button class="rename" id="m-rename" type="button" data-t-title="menu.rename.hint">
         <span id="m-name">Аквариум</span><span class="pen">✏️</span>
       </button></h2>
-      <p class="who"><span id="m-count">…</span> ·
+      <p class="who"><span id="m-count">…</span><span class="sep"> ·</span>
         <button class="code" id="m-key" type="button" data-t-title="menu.pass.title"></button>
       </p>
 

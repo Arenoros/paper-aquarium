@@ -45,7 +45,6 @@ class Aquarium(private val ctx: Context, private val engine: Engine, private val
     private val lengths: Map<String, Float>
     /** Виды, у которых есть лист раскраски, — их принимает сервер. */
     val kinds: Set<String> get() = lengths.keys
-    val fishCount get() = fishes.size
     private val sampler = TextureSampler(TextureSampler.MinFilter.LINEAR_MIPMAP_LINEAR,
         TextureSampler.MagFilter.LINEAR, TextureSampler.WrapMode.CLAMP_TO_EDGE)
     private val main = Handler(Looper.getMainLooper())
@@ -99,6 +98,7 @@ class Aquarium(private val ctx: Context, private val engine: Engine, private val
     fun feed() = food.feed(aspect)
 
     fun update(t: Float, dt: Float) {
+        spawnNext()
         food.update(dt, t, aspect)
         val tm = engine.transformManager
         for (f in fishes.values) if (f.update(dt, t, aspect, food, tm)) {
@@ -112,10 +112,18 @@ class Aquarium(private val ctx: Context, private val engine: Engine, private val
         val list = store.fish()
         val alive = list.mapTo(HashSet()) { it.id }
         fishes.keys.filter { it !in alive }.forEach(::remove)
-        for (rec in list) {
-            if (rec.id in fishes || rec.id in skipped || fishes.size >= MAX_FISH) continue
-            if (!spawn(rec)) skipped.add(rec.id)
-        }
+        pending.removeAll { it.id !in alive }
+        val queued = pending.mapTo(HashSet()) { it.id }
+        for (rec in list) if (rec.id !in fishes && rec.id !in skipped && rec.id !in queued) pending.add(rec)
+    }
+
+    // Подселяем по одной рыбке за кадр: рисунок, mipmap и первая модель вида —
+    // это десятки миллисекунд, и 40 рыбок разом держали первый кадр 8 секунд.
+    private val pending = ArrayDeque<TankStore.Rec>()
+
+    private fun spawnNext() {
+        val rec = pending.removeFirstOrNull() ?: return
+        if (fishes.size < MAX_FISH && !spawn(rec)) skipped.add(rec.id)
     }
 
     private fun spawn(rec: TankStore.Rec): Boolean {
