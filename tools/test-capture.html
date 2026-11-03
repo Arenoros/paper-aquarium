@@ -165,10 +165,56 @@
   var grid = document.getElementById('grid'), status = document.getElementById('status');
   var passed = 0, total = 0, failures = [];
 
+  // ?per=4|6 — листы со страниц по 4 и 6 рыбок: «снимаем» один маленький
+  // лист крупным планом, по краям кадра — куски соседних листов.
+  var PER = new URLSearchParams(location.search).get('per');
+
+  // Задание: что за рыба и как нарисовать её лист на холсте SHEET_W×SHEET_H.
+  function jobs(m) {
+    if (!PER) {
+      return Promise.resolve(m.fish.map(function (f) {
+        return { fish: f, draw: function (sctx) {
+          return loadSvg('/' + f.svg.replace(/^\//, '')).then(function (svg) {
+            sctx.drawImage(svg, 0, 0, SHEET_W, SHEET_H);
+            colorInside(sctx, f, m.sheet);
+          });
+        } };
+      }));
+    }
+    var byName = {};
+    m.fish.forEach(function (f) { byName[f.name] = f; });
+    return Promise.all(m.layouts[PER].map(function (page) {
+      var url = '/' + page.sheets.ru;
+      return fetch(url).then(function (r) { return r.text(); }).then(function (text) {
+        // места маленьких листов на странице, мм — по вложенным <svg>
+        var re = /<svg x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/g, r, rects = [];
+        while ((r = re.exec(text))) rects.push(r.slice(1).map(Number));
+        return page.fish.map(function (name, j) {
+          var f = byName[name], rc = rects[j];
+          var pad = rc[2] * 0.06, x0 = rc[0] - pad, y0 = rc[1] - pad;
+          var s = SHEET_W / (rc[2] + 2 * pad);          // px холста на мм страницы
+          return { fish: f, draw: function (sctx) {
+            return loadSvg(url).then(function (svg) {
+              sctx.drawImage(svg, -x0 * s, -y0 * s, m.sheet.w * s, m.sheet.h * s);
+              var a = rc[2] * s / SHEET_W;
+              sctx.setTransform(a, 0, 0, a, (rc[0] - x0) * s, (rc[1] - y0) * s);
+              colorInside(sctx, f, m.sheet);
+              sctx.setTransform(1, 0, 0, 1, 0, 0);
+            });
+          } };
+        });
+      });
+    })).then(function (pages) { return [].concat.apply([], pages); });
+  }
+
   fetch('/assets/coloring/manifest.json').then(function (r) { return r.json(); }).then(function (m) {
+    return jobs(m).then(function (list) { run(m, list); });
+  });
+
+  function run(m, list) {
     var i = 0;
     (function next() {
-      if (i >= m.fish.length) {
+      if (i >= list.length) {
         status.textContent = 'Распознано ' + passed + ' из ' + total +
           (failures.length ? '. Провалы: ' + failures.join(', ') : '. Провалов нет.');
         status.className = failures.length ? 'sub bad' : 'sub ok';
@@ -176,18 +222,15 @@
         window.TEST_RESULT = { passed: passed, total: total, failures: failures };
         return;
       }
-      var f = m.fish[i++];
-      status.textContent = 'Проверка ' + i + '/' + m.fish.length + ': ' + f.title;
+      var job = list[i++], f = job.fish;
+      status.textContent = 'Проверка ' + i + '/' + list.length + ': ' + f.title;
 
-      loadSvg('/' + f.svg.replace(/^\//, '')).then(function (svg) {
-        var sheet = document.createElement('canvas');
-        sheet.width = SHEET_W; sheet.height = SHEET_H;
-        var sctx = sheet.getContext('2d', { willReadFrequently: true });
-        sctx.fillStyle = '#fff';
-        sctx.fillRect(0, 0, SHEET_W, SHEET_H);
-        sctx.drawImage(svg, 0, 0, SHEET_W, SHEET_H);
-        colorInside(sctx, f, m.sheet);
-
+      var sheet = document.createElement('canvas');
+      sheet.width = SHEET_W; sheet.height = SHEET_H;
+      var sctx = sheet.getContext('2d', { willReadFrequently: true });
+      sctx.fillStyle = '#fff';
+      sctx.fillRect(0, 0, SHEET_W, SHEET_H);
+      job.draw(sctx).then(function () {
         var chain = Promise.resolve();
         CASES.forEach(function (cs) {
           chain = chain.then(function () {
@@ -206,7 +249,7 @@
         chain.then(function () { setTimeout(next, 0); });
       }, function () { setTimeout(next, 0); });
     })();
-  });
+  }
 
   function show(f, cs, good, preview, note) {
     var cell = document.createElement('div');

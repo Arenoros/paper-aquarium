@@ -310,8 +310,8 @@ When the app is uninstalled, Android asks whether to keep its data.
 | What | Where | Why |
 |---|---|---|
 | Silhouettes | `/tools/silhouettes.html` | traces the pack models, produces `contours.json` and the fins drawn over the body |
-| Sheets | `node tools/make-coloring.js` | builds 12 A4 sheets in three languages plus the manifest |
-| PDF | `node tools/make-pdf.js` | prints the sheets into `raskraski.<lang>.pdf` via headless Chrome; run after make-coloring |
+| Sheets | `node tools/make-coloring.js` | builds 12 A4 sheets in three languages, pages with 4 and 6 fish per A4, and the manifest |
+| PDF | `node tools/make-pdf.js` | prints the sheets into `raskraski.<lang>.pdf` (and `raskraski-4/-6.<lang>.pdf` with 4 or 6 fish per page) via headless Chrome; run after make-coloring |
 | Capture test | `/tools/test-capture.html` | runs every sheet through skew, rotation and noise |
 | Pack build | `tools/convert-pack.ps1` | FBX from the purchased archive → glTF |
 | Test pack | `node tools/make-test-pack.js` | fish from the `contours.json` silhouettes without buying anything — for measurements and checks; `--fill <code> N` fills an aquarium |

@@ -220,12 +220,15 @@
           groups[f.kind] = groups[f.kind] || {};
           groups[f.kind][f.corner] = f.center;
         });
+        // На странице по 4–6 рыбок в кадр могут целиком попасть несколько
+        // листов — берём ближайший к центру кадра: в него и целились.
+        var bestD = Infinity;
         for (var kd in groups) {
-          if (['tl', 'tr', 'bl', 'br'].every(function (c) { return groups[kd][c]; })) {
-            kind = kd;
-            byKind = groups[kd];
-            break;
-          }
+          var g = groups[kd];
+          if (!g.tl || !g.tr || !g.bl || !g.br) continue;
+          var gx = (g.tl[0] + g.tr[0] + g.bl[0] + g.br[0]) / 4 - W / 2;
+          var gy = (g.tl[1] + g.tr[1] + g.bl[1] + g.br[1]) / 4 - H / 2;
+          if (gx * gx + gy * gy < bestD) { bestD = gx * gx + gy * gy; kind = kd; byKind = g; }
         }
       }
 

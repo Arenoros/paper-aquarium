@@ -19,6 +19,8 @@
   .top a.pdf {
     border: 1px solid #58d6ff; border-radius: 8px; padding: 6px 13px;
   }
+  .top label { font-size: 13px; color: #8aa; }
+  .top select { font: inherit; margin-left: 6px; border-radius: 6px; padding: 3px 4px; }
   button {
     cursor: pointer; font: inherit; font-size: 13px;
     background: #58d6ff; border: 0; border-radius: 8px; padding: 7px 14px;
@@ -79,12 +81,15 @@
 <div class="top">
   <h1 data-t="print.title"></h1>
   <a href="/" class="home" data-t="print.home"></a>
+  <label><span data-t="print.per"></span>
+    <select id="per"><option>1</option><option>4</option><option>6</option></select></label>
   <a class="pdf" id="pdfLink" download data-t="print.pdf"></a>
   <button id="printAll" data-t="print.all"></button>
 </div>
 <div class="wrap">
   <p class="note" data-t="print.note"></p>
   <p class="note" data-t="print.note2"></p>
+  <p class="note" id="noteMany" data-t="print.note.many" hidden></p>
 
   <div id="list"></div>
 </div>
@@ -112,12 +117,24 @@ if (Q.get('lang')) I18N.set(Q.get('lang'));
 // ниже экрана так и не загрузятся, и в PDF уедут пустые листы.
 var PDF = Q.has('pdf');
 
+// ?per=4|6 — рыбок на одной А4: каждая на своём уменьшенном листе со своими
+// метками, так что после печати узнаётся любая.
+var PER = Q.get('per') === '4' || Q.get('per') === '6' ? Q.get('per') : '1';
+var perSel = document.getElementById('per');
+perSel.value = PER;
+perSel.addEventListener('change', function () {
+  if (perSel.value === '1') Q.delete('per'); else Q.set('per', perSel.value);
+  location.search = Q.toString();
+});
+document.getElementById('noteMany').hidden = PER === '1';
+
 // Готовый PDF собран генератором точно под A4 — в нём метки заведомо
 // правильного размера, в отличие от «Сохранить как PDF» с чужими полями.
 var pdfLink = document.getElementById('pdfLink');
 function repdf() {
-  pdfLink.href = '/assets/coloring/raskraski.' + I18N.lang + '.pdf';
-  pdfLink.setAttribute('download', I18N.t('print.pdf.file'));
+  var suffix = PER === '1' ? '' : '-' + PER;
+  pdfLink.href = '/assets/coloring/raskraski' + suffix + '.' + I18N.lang + '.pdf';
+  pdfLink.setAttribute('download', I18N.t('print.pdf.file').replace(/\.pdf$/, suffix + '.pdf'));
 }
 repdf();
 addEventListener('aqua:lang', repdf);
@@ -162,14 +179,32 @@ function titleOf(f) {
   return (f.titles && (f.titles[I18N.lang] || f.titles.ru)) || f.title;
 }
 
+// Карточка — один лист печати: рыбка целиком или страница с 4–6 рыбками.
+function cardsOf(m) {
+  var byName = {};
+  m.fish.forEach(function (f) { byName[f.name] = f; });
+  if (PER !== '1' && m.layouts && m.layouts[PER]) {
+    return m.layouts[PER].map(function (p, i) {
+      return {
+        key: 'page' + i,
+        title: function () { return p.fish.map(function (n) { return titleOf(byName[n]); }).join(', '); },
+        src: function () { return '/' + (p.sheets[I18N.lang] || p.sheets.ru); }
+      };
+    });
+  }
+  return m.fish.map(function (f) {
+    return { key: f.name, title: function () { return titleOf(f); }, src: function () { return sheetOf(f); } };
+  });
+}
+
 fetch('/assets/coloring/manifest.json')
   .then(function (r) { return r.json(); })
   .then(function (m) {
     var list = document.getElementById('list');
-    m.fish.forEach(function (f) {
+    cardsOf(m).forEach(function (f) {
       var card = document.createElement('div');
       card.className = 'card';
-      card.dataset.fish = f.name;
+      card.dataset.fish = f.key;
 
       var bar = document.createElement('div');
       bar.className = 'bar';
@@ -177,7 +212,7 @@ fetch('/assets/coloring/manifest.json')
       var btn = document.createElement('button');
       btn.setAttribute('data-t', 'print.one');
       btn.textContent = I18N.t('print.one');
-      btn.onclick = function () { printOne(f.name); };
+      btn.onclick = function () { printOne(f.key); };
       bar.appendChild(b);
       bar.appendChild(btn);
 
@@ -186,8 +221,8 @@ fetch('/assets/coloring/manifest.json')
       img.loading = PDF ? 'eager' : 'lazy';
 
       var retitle = function () {
-        b.textContent = img.alt = titleOf(f);
-        img.src = sheetOf(f);
+        b.textContent = img.alt = f.title();
+        img.src = f.src();
       };
       retitle();
       addEventListener('aqua:lang', retitle);

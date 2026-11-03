@@ -295,8 +295,8 @@ curl --data-binary @aquarium.zip -H "Content-Type: application/zip" http://<ад
 | Что | Где | Зачем |
 |---|---|---|
 | Силуэты | `/tools/silhouettes.html` | обводит модели пака, отдаёт `contours.json` и плавники поверх тела |
-| Листы | `node tools/make-coloring.js` | собирает 12 листов A4 на трёх языках и манифест |
-| PDF | `node tools/make-pdf.js` | печатает листы в `raskraski.<язык>.pdf` через headless Chrome; запускать после make-coloring |
+| Листы | `node tools/make-coloring.js` | собирает 12 листов A4 на трёх языках, страницы по 4 и 6 рыбок на A4 и манифест |
+| PDF | `node tools/make-pdf.js` | печатает листы в `raskraski.<язык>.pdf` (и `raskraski-4/-6.<язык>.pdf` по 4 и 6 рыбок на странице) через headless Chrome; запускать после make-coloring |
 | Проверка съёмки | `/tools/test-capture.html` | прогоняет каждый лист с перекосом, поворотом и шумом |
 | Сборка пака | `tools/convert-pack.ps1` | FBX из купленного архива → glTF |
 | Тестовый пак | `node tools/make-test-pack.js` | рыбы из силуэтов `contours.json` без покупки — для замеров и проверки; `--fill <код> N` заселяет аквариум |

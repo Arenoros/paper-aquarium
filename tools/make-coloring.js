@@ -33,11 +33,12 @@ const SHEET = {
   work: { x0: 36, x1: 261, y0: 36, y1: 166 }
 };
 const FIT = 0.94;          // доля рабочего поля, которую занимает габарит рыбы
-// Контур тонкий и серый: жирная чёрная обводка спорила с раскраской ребёнка,
-// а после съёмки от неё оставалась тёмная кайма по краю рыбы. Ширину и цвет
-// знает и capture.js — он срезает полосу вдоль контура (TRIM_MM).
+// Контур тонкий и тёмно-серый: жирная чёрная обводка спорила с раскраской
+// ребёнка, а после съёмки от неё оставалась тёмная кайма по краю рыбы;
+// светло-серый (#8a8a8a) бытовой принтер печатал бледно. Ширину знает
+// и capture.js — он срезает полосу вдоль контура (TRIM_MM).
 const STROKE = 1.6;        // мм
-const STROKE_COLOR = '#8a8a8a';
+const STROKE_COLOR = '#555';
 
 // ── виды ────────────────────────────────────────────────────────────────────
 // name — папка в assets/models/pack, titles — что видит ребёнок, на трёх
@@ -220,12 +221,18 @@ const FIN = {
   // Пунктир, а не сплошная: сплошную линию ребёнок обводит как часть рисунка,
   // пунктир читается как подсказка «здесь плавник».
   // Светлее контура нарочно: всё, что напечатано внутри рыбы, попадает
-  // на фотографию и остаётся на текстуре. Бледный пунктир ребёнок закрасит,
-  // а если и нет — на рыбке он почти не виден.
-  color: '#c2c2c2',
-  width: 0.55,
-  dash: '2.2 2'
+  // на фотографию и остаётся на текстуре. Но не бледнее #888 и не тоньше
+  // 0.7 мм: прежний #c2c2c2 в 0.55 мм принтер растрировал в редкие точки,
+  // и пунктира на бумаге почти не было.
+  color: '#7a7a7a',
+  width: 0.75,
+  dash: '2.4 1.8'
 };
+
+// Глаз — кружок-подсказка тем же цветом, что пунктир, но сплошной: место
+// глаза ребёнок видит сразу, а закрасить его может как хочет. Радиус — в долях
+// длины рыбы (модельные единицы), чтобы глаз рос и мельчал вместе с ней.
+const EYE = { r: 0.032 };
 
 // Расстояние до ближайшей клетки маски, в клетках. Двухпроходный чамфер:
 // точности 2% нам хватает, а честный евклид тут ни к чему.
@@ -467,39 +474,94 @@ const INNER_FINS = (() => {
   } catch (e) { return {}; }
 })();
 
-function buildSvg(fish, lang) {
+// Содержимое листа без обёртки <svg>. k — во сколько раз лист уменьшен на
+// бумаге (1 — свой лист А4). Пунктир, глаз и подпись при уменьшении
+// утолщаем на 1/√k: пунктир 0.24 мм на листе по 6 рыбок принтер опять
+// не пропечатал бы. Контур не трогаем: его ширину в мм листа знает
+// capture.js (TRIM_MM), а в каком масштабе лист напечатан — нет.
+const FINS = new Map();
+
+function sheetBody(fish, lang, k) {
   const st = fish.sheetTransform;
   const X = (z) => (st.ox + st.scale * z).toFixed(2);
   const Y = (y) => (st.oy - st.scale * y).toFixed(2);
+  const f = 1 / Math.sqrt(k);
+  const finW = (FIN.width * f).toFixed(2);
+  const dash = FIN.dash.split(' ').map((v) => (v * f).toFixed(2)).join(' ');
 
   const pts = fish.contourModel.map((p) => [+X(p[0]), +Y(p[1])]);
   const d = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(2)} ${p[1].toFixed(2)}`).join(' ') + ' Z';
 
-
-  const parts = [
-    `<svg xmlns="http://www.w3.org/2000/svg" width="${SHEET.w}mm" height="${SHEET.h}mm" viewBox="0 0 ${SHEET.w} ${SHEET.h}">`,
-    `  <rect width="${SHEET.w}" height="${SHEET.h}" fill="#fff"/>`
-  ];
+  const parts = [`<rect width="${SHEET.w}" height="${SHEET.h}" fill="#fff"/>`];
   for (const corner of ['tl', 'tr', 'bl', 'br']) {
     const pos = SHEET.markerPositions[corner];
-    parts.push('  ' + markerSvg(fish.markers[corner], pos[0], pos[1]));
+    parts.push(markerSvg(fish.markers[corner], pos[0], pos[1]));
   }
   parts.push(
-    `  <path d="${d}" fill="#fff" stroke="${STROKE_COLOR}" stroke-width="${STROKE}" stroke-linejoin="round"/>`
+    `<path d="${d}" fill="#fff" stroke="${STROKE_COLOR}" stroke-width="${STROKE}" stroke-linejoin="round"/>`
   );
   const inner = (INNER_FINS[fish.name] || []).map((line) =>
     line.map((p, i) => `${i ? 'L' : 'M'}${X(p[0])} ${Y(p[1])}`).join(' '));
 
-  for (const line of finLines(pts).concat(inner)) {
-    parts.push(`  <path d="${line}" fill="none" stroke="${FIN.color}" stroke-width="${FIN.width}" ` +
-               `stroke-dasharray="${FIN.dash}" stroke-linecap="round" stroke-linejoin="round"/>`);
+  // срезы плавников считаются растром — один раз на вид, а не на каждый лист
+  if (!FINS.has(fish.name)) FINS.set(fish.name, finLines(pts));
+  for (const line of FINS.get(fish.name).concat(inner)) {
+    parts.push(`<path d="${line}" fill="none" stroke="${FIN.color}" stroke-width="${finW}" ` +
+               `stroke-dasharray="${dash}" stroke-linecap="round" stroke-linejoin="round"/>`);
   }
   parts.push(
-    // Глаз на листе не печатаем: ребёнок рисует свой, где захочет. Координата
-    // всё равно считается и лежит в манифесте — вернуть подсказку легко.
-    `  <text x="${SHEET.w / 2}" y="197" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="7" font-weight="600" fill="#444">${fish.titles[lang]}</text>`,
-    '</svg>'
+    `<circle cx="${X(fish.eye[0])}" cy="${Y(fish.eye[1])}" r="${(EYE.r * st.scale).toFixed(2)}" ` +
+      `fill="none" stroke="${FIN.color}" stroke-width="${finW}"/>`,
+    `<text x="${SHEET.w / 2}" y="197" text-anchor="middle" font-family="Segoe UI, sans-serif" ` +
+      `font-size="${(7 * f).toFixed(1)}" font-weight="600" fill="#444">${fish.titles[lang]}</text>`
   );
+  return parts;
+}
+
+function buildSvg(fish, lang) {
+  return [
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${SHEET.w}mm" height="${SHEET.h}mm" viewBox="0 0 ${SHEET.w} ${SHEET.h}">`,
+    ...sheetBody(fish, lang, 1).map((p) => '  ' + p),
+    '</svg>'
+  ].join('\n') + '\n';
+}
+
+// ── несколько рыбок на одной А4 ─────────────────────────────────────────────
+// Каждая — целый лист в уменьшенном виде, со своими метками: capture.js ищет
+// метки по форме, а не по размеру, и выправляет перспективу по ним же, так
+// что распознаётся любой из маленьких листов. Между листами — линии отреза.
+const PAGE = { margin: 4, gap: 4 };            // мм; поле страницы и зазор
+const LAYOUTS = { 4: [2, 2], 6: [3, 2] };       // рыбок на А4: [колонок, рядов]
+
+function buildPage(fishes, lang, cols, rows) {
+  const W = SHEET.w, H = SHEET.h, g = PAGE.gap;
+  const k = Math.min((W - 2 * PAGE.margin - (cols - 1) * g) / cols / W,
+                     (H - 2 * PAGE.margin - (rows - 1) * g) / rows / H);
+  const sw = W * k, sh = H * k;
+  const x0 = (W - cols * sw - (cols - 1) * g) / 2;
+  const y0 = (H - rows * sh - (rows - 1) * g) / 2;
+  const cut = 'stroke="#bbb" stroke-width="0.25" stroke-dasharray="1 1.5"';
+
+  const parts = [
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${W}mm" height="${H}mm" viewBox="0 0 ${W} ${H}">`,
+    `  <rect width="${W}" height="${H}" fill="#fff"/>`
+  ];
+  for (let c = 1; c < cols; c++) {
+    const x = (x0 + c * sw + (c - 0.5) * g).toFixed(2);
+    parts.push(`  <line x1="${x}" y1="0" x2="${x}" y2="${H}" ${cut}/>`);
+  }
+  for (let r = 1; r < rows; r++) {
+    const y = (y0 + r * sh + (r - 0.5) * g).toFixed(2);
+    parts.push(`  <line x1="0" y1="${y}" x2="${W}" y2="${y}" ${cut}/>`);
+  }
+  fishes.forEach((f, i) => {
+    const x = (x0 + (i % cols) * (sw + g)).toFixed(2);
+    const y = (y0 + Math.floor(i / cols) * (sh + g)).toFixed(2);
+    parts.push(`  <svg x="${x}" y="${y}" width="${sw.toFixed(2)}" height="${sh.toFixed(2)}" viewBox="0 0 ${W} ${H}">`,
+               ...sheetBody(f, lang, k).map((p) => '    ' + p),
+               '  </svg>');
+  });
+  parts.push('</svg>');
   return parts.join('\n') + '\n';
 }
 
@@ -561,9 +623,25 @@ function main() {
       fs.writeFileSync(path.join(OUT, sheetFile(f.name, lang)), buildSvg(f, lang), 'utf8');
     }
   }
+  // Страницы по 4 и 6 рыбок: page4-1.svg, page4-1.en.svg, …
+  const layouts = {};
+  for (const per of Object.keys(LAYOUTS)) {
+    const [cols, rows] = LAYOUTS[per];
+    layouts[per] = [];
+    for (let i = 0; i < fish.length; i += +per) {
+      const group = fish.slice(i, i + +per);
+      const name = 'page' + per + '-' + (i / per + 1);
+      const sheets = {};
+      for (const lang of LANGS) {
+        fs.writeFileSync(path.join(OUT, sheetFile(name, lang)), buildPage(group, lang, cols, rows), 'utf8');
+        sheets[lang] = 'assets/coloring/' + sheetFile(name, lang);
+      }
+      layouts[per].push({ fish: group.map((f) => f.name), sheets: sheets });
+    }
+  }
   fs.writeFileSync(
     path.join(OUT, 'manifest.json'),
-    JSON.stringify({ version: 2, sheet: SHEET, fish: fish }, null, 1),
+    JSON.stringify({ version: 2, sheet: SHEET, fish: fish, layouts: layouts }, null, 1),
     'utf8'
   );
 

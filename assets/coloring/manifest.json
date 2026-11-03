@@ -5410,5 +5410,80 @@
     0.1038
    ]
   }
- ]
+ ],
+ "layouts": {
+  "4": [
+   {
+    "fish": [
+     "clownfish",
+     "bluetang",
+     "chelmonrostratus",
+     "clowntriggerfish"
+    ],
+    "sheets": {
+     "ru": "assets/coloring/page4-1.svg",
+     "en": "assets/coloring/page4-1.en.svg",
+     "pl": "assets/coloring/page4-1.pl.svg"
+    }
+   },
+   {
+    "fish": [
+     "frenchangelfish",
+     "fusilierfish",
+     "blackspottedsweetlips",
+     "coralgrouper"
+    ],
+    "sheets": {
+     "ru": "assets/coloring/page4-2.svg",
+     "en": "assets/coloring/page4-2.en.svg",
+     "pl": "assets/coloring/page4-2.pl.svg"
+    }
+   },
+   {
+    "fish": [
+     "browntang",
+     "bicolorangelfish",
+     "bluecheekbutterflyfish",
+     "discus1"
+    ],
+    "sheets": {
+     "ru": "assets/coloring/page4-3.svg",
+     "en": "assets/coloring/page4-3.en.svg",
+     "pl": "assets/coloring/page4-3.pl.svg"
+    }
+   }
+  ],
+  "6": [
+   {
+    "fish": [
+     "clownfish",
+     "bluetang",
+     "chelmonrostratus",
+     "clowntriggerfish",
+     "frenchangelfish",
+     "fusilierfish"
+    ],
+    "sheets": {
+     "ru": "assets/coloring/page6-1.svg",
+     "en": "assets/coloring/page6-1.en.svg",
+     "pl": "assets/coloring/page6-1.pl.svg"
+    }
+   },
+   {
+    "fish": [
+     "blackspottedsweetlips",
+     "coralgrouper",
+     "browntang",
+     "bicolorangelfish",
+     "bluecheekbutterflyfish",
+     "discus1"
+    ],
+    "sheets": {
+     "ru": "assets/coloring/page6-2.svg",
+     "en": "assets/coloring/page6-2.en.svg",
+     "pl": "assets/coloring/page6-2.pl.svg"
+    }
+   }
+  ]
+ }
 }

@@ -3,7 +3,8 @@
  *   node tools/make-pdf.js        (или npm run pdf)
  *
  * На выходе: assets/coloring/raskraski.<ru|en|pl>.pdf — все листы одним
- * файлом, по одному PDF на язык. Файлы статические и едут в git: генерить
+ * файлом, по одному PDF на язык; raskraski-4.* и raskraski-6.* — то же
+ * по 4 и 6 рыбок на странице (print.html?per=). Файлы статические и едут в git: генерить
  * их на проде не из чего — там нет Chrome.
  *
  * Печатает print.html?lang=xx&pdf=1 через headless Chrome (или Edge — он
@@ -82,9 +83,10 @@ function serve() {
 
   console.log('Браузер: ' + chrome);
   try {
-    for (const lang of LANGS) {
-      const out = path.join(OUT, 'raskraski.' + lang + '.pdf');
-      const url = 'http://127.0.0.1:' + port + '/print.html?lang=' + lang + '&pdf=1';
+    for (const [lang, per] of LANGS.flatMap((l) => ['1', '4', '6'].map((p) => [l, p]))) {
+      const suffix = per === '1' ? '' : '-' + per;
+      const out = path.join(OUT, 'raskraski' + suffix + '.' + lang + '.pdf');
+      const url = 'http://127.0.0.1:' + port + '/print.html?lang=' + lang + '&pdf=1' + (suffix && '&per=' + per);
       // Chrome запускается асинхронно: страницу ему отдаёт наш же сервер,
       // и синхронный запуск запер бы event loop — Chrome ждёт страницу,
       // сервер ждёт Chrome.

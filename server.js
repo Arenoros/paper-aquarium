@@ -1519,8 +1519,9 @@ function webpTwin(file) {
 // Код правим часто, поэтому он перепроверяется всегда — но с ETag перепроверка
 // стоит 304 вместо повторной выкачки. Картинки и модели меняются редко, их
 // держим сутки; всё из data/ живёт вместе с аквариумом и меняется на ходу.
+// manifest.json — тоже код: по нему печатаются страницы и узнаются листы.
 function cacheControl(ext, url) {
-  if (ext === '.html' || ext === '.js' || ext === '.css') return 'no-cache';
+  if (ext === '.html' || ext === '.js' || ext === '.css' || ext === '.json') return 'no-cache';
   if (url.startsWith('/data/')) return 'no-cache';
   return 'public, max-age=86400';
 }
