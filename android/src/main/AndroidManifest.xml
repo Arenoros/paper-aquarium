@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-
+    <!-- Filament не умеет OpenGL ES 2 (docs/adr/0002-native-filament-on-tv.md). -->
+    <uses-feature android:glEsVersion="0x00030000" android:required="true" />
     <!-- Работает и на ТВ без сенсора, и на планшете без leanback. -->
     <uses-feature android:name="android.software.leanback" android:required="false" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
-    <!-- Аквариум ходит на свой же сервер по http://localhost — без cleartext
-         WebView такой адрес не откроет. -->
-    <application
-        android:label="Аквариум"
-        android:usesCleartextTraffic="true">
-
+    <application android:label="Аквариум">
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTask"
             android:configChanges="orientation|screenSize|screenLayout|keyboard|keyboardHidden|navigation"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
             <intent-filter>

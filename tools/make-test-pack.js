@@ -2,6 +2,7 @@
 //
 //   node tools/make-test-pack.js            → assets/models/pack/ (в git не лежит)
 //   node tools/make-test-pack.js --grid 64  → гуще сетка, больше вершин
+//   node tools/make-test-pack.js --out pack-lod1 --grid 24 → LOD дальнего плана
 //
 // Силуэты сняты с настоящего пака, поэтому листы раскрасок, съёмка и
 // планарная UV ложатся на эти рыбы так же, как на покупные. Тело — боковой
@@ -18,8 +19,10 @@ const path = require('path');
 const zlib = require('zlib');
 
 const ROOT = path.join(__dirname, '..');
-const OUT = path.join(ROOT, 'assets', 'models', 'pack');
-const GRID = Number((process.argv.indexOf('--grid') > 0 && process.argv[process.argv.indexOf('--grid') + 1]) || 48);
+const arg = (k, d) => (process.argv.indexOf(k) > 0 ? process.argv[process.argv.indexOf(k) + 1] : d);
+const GRID = Number(arg('--grid', 48));
+// --out pack-lod1 --grid 24 — та же рыба реже, для дальнего плана на ТВ
+const OUT = path.join(ROOT, 'assets', 'models', arg('--out', 'pack'));
 const BONES = 8;
 const T_MAX = 0.07;    // половина толщины тела при длине 1
 const T_REF = 0.15;    // на каком удалении от края тело набирает полную толщину
