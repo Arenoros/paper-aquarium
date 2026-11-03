@@ -4,6 +4,9 @@
 *.jpg binary
 *.ico binary
 *.glb binary
+*.jar binary
+# cmd.exe с LF в .bat путается в метках goto.
+*.bat text eol=crlf
 
 # Чужой код и сгенерированное не должны попадать в статистику языков —
 # иначе гитхаб решит, что проект написан на three.js.

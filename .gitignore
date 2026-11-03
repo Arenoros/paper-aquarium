@@ -42,3 +42,9 @@ node_modules/
 
 # Разборы метрик прода: адреса серверов, пути и цифры проекта — не для публичного репозитория
 analytics/
+
+# Android-проект: сборка и машинные пути
+android/.gradle/
+android/.kotlin/
+android/build/
+android/local.properties
