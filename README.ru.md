@@ -269,6 +269,9 @@ Wi-Fi открывает аквариум по QR с экрана — съёмк
 ([docs/adr/0002](docs/adr/0002-native-filament-on-tv.md)). Нужен Android 7+
 с OpenGL ES 3.0.
 
+Готовый APK можно скачать с GitHub и установить по
+[инструкции для Android TV со скриншотами](docs/android-tv-install.md).
+
 **Сборка.** Нужны Android SDK и JDK 17+; Android Studio не обязательна. Пак
 моделей должен лежать в `assets/models/pack/` (см. выше) — APK берёт его
 и веб-часть прямо из репозитория. Подпись — постоянным ключом: APK с другим

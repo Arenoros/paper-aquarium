@@ -277,6 +277,9 @@ on a weak TV, the native one runs at 30 with 40 fish and looks the same
 ([docs/adr/0002](docs/adr/0002-native-filament-on-tv.md)). Needs Android 7+
 with OpenGL ES 3.0.
 
+To install a GitHub release, see the
+[illustrated Android TV guide (Russian)](docs/android-tv-install.md).
+
 **Building.** You need the Android SDK and JDK 17+; Android Studio is
 optional. The model pack must be in `assets/models/pack/` (see above) — the
 APK takes it and the web part straight from the repository. Sign with a
