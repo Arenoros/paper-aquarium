@@ -1,0 +1,72 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - run: npm test
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Install Android SDK packages
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0" "build-tools;36.0.0"
+
+      - name: Generate fish models for public release
+        run: |
+          node tools/make-test-pack.js
+          node tools/make-test-pack.js --out pack-lod1 --grid 24
+
+      - name: Build signed APK
+        working-directory: android
+        env:
+          TAG: ${{ github.ref_name }}
+          SIGNING_KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
+          ORG_GRADLE_PROJECT_aquaStorePassword: ${{ secrets.SIGNING_PASSWORD }}
+        run: |
+          if [[ -z "$SIGNING_KEYSTORE_BASE64" || -z "$ORG_GRADLE_PROJECT_aquaStorePassword" ]]; then
+            echo '::error::Set SIGNING_KEYSTORE_BASE64 and SIGNING_PASSWORD before publishing a release.'
+            exit 1
+          fi
+
+          keystore=$(mktemp "$RUNNER_TEMP/paper-aquarium.XXXXXX")
+          trap 'rm -f "$keystore"' EXIT
+          printf '%s' "$SIGNING_KEYSTORE_BASE64" | base64 --decode > "$keystore"
+          unset SIGNING_KEYSTORE_BASE64
+          export ORG_GRADLE_PROJECT_aquaKeystore="$keystore"
+          export ORG_GRADLE_PROJECT_aquaReleaseVersion="${TAG#v}"
+          bash ./gradlew assembleRelease
+
+      - name: Verify and publish APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          apk="android/build/outputs/apk/release/paper-aquarium-tv-${TAG#v}.apk"
+          mv android/build/outputs/apk/release/paper-aquarium-tv-release.apk "$apk"
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$apk"
+          gh release create "$TAG" "$apk" --title "$TAG" --verify-tag --notes-from-tag

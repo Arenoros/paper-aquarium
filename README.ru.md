@@ -277,7 +277,7 @@ Wi-Fi открывает аквариум по QR с экрана — съёмк
 
 ```properties
 aquaStorePassword=…
-aquaKeystore=путь/к/ключу.jks
+aquaKeystore=путь/к/release.p12
 ```
 
 ```bash
@@ -289,6 +289,8 @@ adb install -r build/outputs/apk/release/paper-aquarium-tv-release.apk
 
 Без купленного пака для проверки годится тестовый: `node tools/make-test-pack.js`
 и `node tools/make-test-pack.js --out pack-lod1 --grid 24` (дальний план).
+
+Публикация подписанного APK на GitHub описана в [инструкции по релизу](docs/release.md).
 
 **Пульт.** OK — QR и адрес для телефона, «Назад» — спрятать QR или выйти.
 Пустой аквариум показывает QR сам. Рыбок аквариум принимает, только пока

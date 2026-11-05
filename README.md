@@ -286,7 +286,7 @@ and reinstalling wipes the drawings on the TV. The key password goes into
 
 ```properties
 aquaStorePassword=…
-aquaKeystore=path/to/key.jks
+aquaKeystore=path/to/release.p12
 ```
 
 ```bash
@@ -299,6 +299,8 @@ adb install -r build/outputs/apk/release/paper-aquarium-tv-release.apk
 Without the purchased pack, the test one will do for a check:
 `node tools/make-test-pack.js` and
 `node tools/make-test-pack.js --out pack-lod1 --grid 24` (far LOD).
+
+For signed GitHub releases, see [the release guide](docs/release.md).
 
 **Remote.** OK shows the QR code and address for the phone, Back hides it or
 exits. An empty aquarium shows the QR code by itself. The aquarium only takes

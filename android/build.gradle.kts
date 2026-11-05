@@ -20,6 +20,16 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "0.1"
+        providers.gradleProperty("aquaReleaseVersion").orNull?.let { version ->
+            val pattern = Regex("(0|[1-9][0-9]{0,4})\\.(0|[1-9][0-9]?)\\.(0|[1-9][0-9]?)")
+            val (major, minor, patch) = requireNotNull(pattern.matchEntire(version)) {
+                "aquaReleaseVersion must be X.Y.Z with minor and patch below 100"
+            }.destructured
+            val code = major.toInt() * 10_000 + minor.toInt() * 100 + patch.toInt()
+            require(code > 0) { "aquaReleaseVersion must be greater than 0.0.0" }
+            versionName = version
+            versionCode = code
+        }
         ndk { abiFilters += listOf("armeabi-v7a", "arm64-v8a") }
     }
 
@@ -30,7 +40,7 @@ android {
     signingConfigs {
         create("aqua") {
             storeFile = file(providers.gradleProperty("aquaKeystore")
-                .getOrElse("../../keystore/arenoros.info.jks"))
+                .getOrElse("../../keystore/paper-aquarium-tv/release.p12"))
             storePassword = storePass
             keyAlias = "alias_name"
             keyPassword = storePass
