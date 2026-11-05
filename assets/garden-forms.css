@@ -1,0 +1,16 @@
+body.garden {
+  --ink:#29463a; --muted:#64796b; --accent:#416b48; --card:#f7f7e9;
+  --line:#d5ddc8; --danger:#a33c4d;
+  background:#fffcf1; color:var(--ink); color-scheme:light;
+}
+body.garden .top { background:#fffcf1; color:var(--ink); flex-wrap:wrap; }
+body.garden .top a { color:var(--accent); }
+body.garden .bar { color:var(--ink); }
+body.garden .note { color:var(--muted); }
+body.garden .top select,body.garden .top button { background:#e3efc2; color:var(--ink); }
+body.garden .top a.pdf { border-color:var(--accent); }
+body.garden .gate { background:#fffcf1f5; }
+body.garden .back { background:#fffcf1; border-color:var(--line); }
+body.garden button.big { background:#a6cf82; }
+body.garden button.big.ghost { background:transparent; }
+body.garden .mdl-box { background:#fffcf1; }

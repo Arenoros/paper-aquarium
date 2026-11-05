@@ -261,6 +261,10 @@
         <span class="ico">🏠</span>
         <span><b data-t="menu.home.title"></b><i data-t="menu.home.sub"></i></span>
       </a>
+      <button class="item" id="m-garden" type="button">
+        <span class="ico">🦋</span>
+        <span><b data-t="garden.title"></b><i data-t="garden.switch.sub"></i></span>
+      </button>
 
       <div class="langrow"><span id="lang"></span></div>
     </div>
@@ -1222,6 +1226,7 @@
   // Сводит сцену с присланным списком: новых подселяет, пропавших убирает.
   function applyPainted(list) {
       if (!Array.isArray(list)) return;
+      list = list.filter(function (item) { return !/^garden-/.test(item.kind || ''); });
       setFishCount(list.length);
       var alive = {};
       list.forEach(function (item) { alive[item.id] = true; });
@@ -1455,6 +1460,7 @@
   }
 
   function applySettings(s) {
+    if (s.world === 'garden') { location.replace(Tank.url + location.search); return; }
     applyBackground(s.backgroundUrl || null);
 
 
@@ -1576,6 +1582,13 @@
   var fishCount = null;      // сколько рыбок в аквариуме, null — ещё не знаем
 
   I18N.mount(document.getElementById('lang'));
+  document.getElementById('m-garden').onclick = function () {
+    var btn = this;
+    btn.disabled = true;
+    Tank.send(Tank.api + '/settings', { body: JSON.stringify({ world: 'garden' }) })
+      .then(function (r) { if (!r.ok) throw new Error(); location.replace(Tank.url + location.search); })
+      .catch(function () { btn.disabled = false; Modal.alert({ title: I18N.t('menu.fail.title'), text: I18N.t('garden.offline') }); });
+  };
 
   // Витрина: общий аквариум по ссылке «Посмотреть» с главной. Меню урезано,
   // чтобы гость не отправил рыбку ребёнка в чужой аквариум: остаются корм,
@@ -1586,7 +1599,7 @@
   var TV = /(^|[?&])tv(=|&|$)/.test(location.search);
   if (DEMO) {
     // «Мои аквариумы» тоже прячем: он вёл туда же, куда «Завести свой».
-    ['m-capture', 'm-pack', 'm-print', 'm-bg', 'm-fish', 'm-share', 'm-home']
+    ['m-capture', 'm-pack', 'm-print', 'm-bg', 'm-fish', 'm-share', 'm-home', 'm-garden']
       .forEach(function (id) { document.getElementById(id).hidden = true; });
     document.getElementById('m-demo').hidden = false;
     document.getElementById('m-own').hidden = false;

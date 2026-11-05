@@ -37,6 +37,7 @@ desktop.ini
 .DS_Store
 *.swp
 node_modules/
+.playwright-mcp/
 
 # Claude Code: репозиторий публичный, поэтому и память проекта остаётся локальной
 .claude/

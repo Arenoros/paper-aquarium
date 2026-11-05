@@ -456,7 +456,7 @@
 
     el.querySelector('h2').textContent = meta.name;
     var m = el.querySelector('.meta');
-    m.textContent = fishWord(meta.fishCount) + ' · ';
+    m.textContent = (meta.world === 'garden' ? I18N.t('garden.drawings', { n: meta.worldCount }) : fishWord(meta.worldCount === undefined ? meta.fishCount : meta.worldCount)) + ' · ';
     var code = document.createElement('code');
     code.textContent = meta.id;
     m.appendChild(code);
@@ -528,15 +528,16 @@
     return n ? I18N.plural(n, 'fish') : I18N.t('home.card.empty');
   }
 
-  function newTankTile() {
+  function newTankTile(world) {
+    var garden = world === 'garden';
     var b = document.createElement('button');
     b.className = 'newtank';
-    b.innerHTML = '<span class="plus">+</span><span>' + I18N.t('home.new') + '</span>';
+    b.innerHTML = '<span class="plus">' + (garden ? '🦋' : '+') + '</span><span>' + I18N.t(garden ? 'garden.new' : 'home.new') + '</span>';
     b.onclick = function () {
       Modal.prompt({
-        title: I18N.t('home.create.title'),
+        title: I18N.t(garden ? 'garden.new' : 'home.create.title'),
         text: I18N.t('home.create.text'),
-        value: I18N.t('home.create.value'),
+        value: I18N.t(garden ? 'garden.title' : 'home.create.value'),
         maxLength: 60,
         confirmLabel: I18N.t('home.create.ok')
       }).then(function (name) {
@@ -545,9 +546,9 @@
         return fetch('/api/tanks', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: name })
+          body: JSON.stringify({ name: name, world: garden ? 'garden' : 'aquarium' })
         })
-          .then(function (r) { return r.json(); })
+          .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
           .then(function (meta) {
             Tank.remember(meta.id);
             // Пароль сервер показывает один раз. На этом устройстве он
@@ -555,13 +556,13 @@
             // а вот на телефоне или у второго родителя без него не обойтись.
             Tank.setPass(meta.id, meta.password);
             return Modal.alert({
-              title: I18N.t('home.created.title'),
-              text: I18N.t('home.created.text'),
+              title: I18N.t(garden ? 'garden.created' : 'home.created.title'),
+              text: I18N.t(garden ? 'garden.created.text' : 'home.created.text'),
               fields: [
                 { label: I18N.t('home.created.code'), value: meta.id },
                 { label: I18N.t('home.created.pass'), value: meta.password }
               ],
-              okLabel: I18N.t('home.created.ok')
+              okLabel: I18N.t(garden ? 'garden.open' : 'home.created.ok')
             }).then(function () { location.href = '/t/' + meta.id; });
           })
           .catch(function () {
@@ -658,7 +659,8 @@
         box.appendChild(card(meta));
       });
       box.appendChild(newTankTile());
-      empty.hidden = box.children.length > 1;
+      box.appendChild(newTankTile('garden'));
+      empty.hidden = box.children.length > 2;
     });
   }
 

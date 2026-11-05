@@ -76,6 +76,7 @@
     body.one .card.target { display: block; }
   }
 </style>
+<link rel="stylesheet" href="/assets/garden-forms.css">
 </head>
 <body>
 <div class="top">
@@ -96,6 +97,16 @@
 <script src="/assets/i18n.js"></script>
 <script>
 var Q = new URLSearchParams(location.search);
+var GARDEN = Q.get('world') === 'garden';
+if (GARDEN) {
+  document.body.classList.add('garden');
+  document.querySelectorAll('[data-t]').forEach(function (el) {
+    var key = el.getAttribute('data-t');
+    if (['print.title', 'print.note', 'print.note2'].indexOf(key) !== -1) el.setAttribute('data-t', 'garden.' + key);
+  });
+  document.getElementById('per').parentNode.hidden = true;
+  document.getElementById('pdfLink').hidden = true;
+}
 
 // Обработчик — здесь, а не атрибутом onclick: политика скриптов страницы
 // (Content-Security-Policy) пускает только этот скрипт по его хешу.
@@ -119,7 +130,7 @@ var PDF = Q.has('pdf');
 
 // ?per=4|6 — рыбок на одной А4: каждая на своём уменьшенном листе со своими
 // метками, так что после печати узнаётся любая.
-var PER = Q.get('per') === '4' || Q.get('per') === '6' ? Q.get('per') : '1';
+var PER = !GARDEN && (Q.get('per') === '4' || Q.get('per') === '6') ? Q.get('per') : '1';
 var perSel = document.getElementById('per');
 perSel.value = PER;
 perSel.addEventListener('change', function () {
@@ -197,7 +208,7 @@ function cardsOf(m) {
   });
 }
 
-fetch('/assets/coloring/manifest.json')
+fetch(GARDEN ? '/assets/garden/manifest.json' : '/assets/coloring/manifest.json')
   .then(function (r) { return r.json(); })
   .then(function (m) {
     var list = document.getElementById('list');

@@ -69,6 +69,26 @@ colouring sheets are trilingual too: the caption under the fish is printed in
 the language of the page, while the corner markers are identical in every
 version — any printed sheet is recognised.
 
+## Living garden
+
+![Garden with coloured butterflies and flowers](docs/screenshots/garden.jpg)
+
+Choose **New garden** on the home page or **Living garden** in the aquarium
+menu. Colour the butterfly and flower sheets, photograph them, and watch
+butterflies visit your flowers. Nectar calls them over; sunshine and rain
+sync across open screens. Ready-made drawings let you try it without printing.
+
+Switching worlds keeps both fish and garden drawings. The drawings page only
+removes items from its own world, into the existing bin. The 40-item limit is
+shared. The garden also works offline on Android TV: its lightweight Canvas
+scene runs in a WebView while the aquarium keeps its native Filament renderer.
+No purchased models are needed for the garden.
+
+Generate the two A4 sheets in all three languages with `npm run garden`.
+Print at `/print.html?world=garden` and check recognition at
+`/tools/test-capture.html?world=garden`. Garden marker codes are distinct from
+all fish codes; capture, storage and backups use the existing format.
+
 ## Running it
 
 ```bash

@@ -109,7 +109,7 @@ class Aquarium(private val ctx: Context, private val engine: Engine, private val
     // ── рыбки с диска ───────────────────────────────────────────────────────
     fun sync() {
         applyBackground(store.background() ?: randomBackground().also(store::setBackground))
-        val list = store.fish()
+        val list = store.fish().filter { !it.kind.startsWith("garden-") }
         val alive = list.mapTo(HashSet()) { it.id }
         fishes.keys.filter { it !in alive }.forEach(::remove)
         pending.removeAll { it.id !in alive }

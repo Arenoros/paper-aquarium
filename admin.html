@@ -177,6 +177,7 @@
   .gate .bad { margin-top: 12px; color: #ff9aa6; font-size: 13px; }
 
 </style>
+<link rel="stylesheet" href="/assets/garden-forms.css">
 </head>
 <body>
 
@@ -245,6 +246,12 @@
   var params = new URLSearchParams(location.search);
   var EMBED = params.has('embed');
   var ONLY = params.get('only');
+  var GARDEN = params.get('world') === 'garden';
+  if (GARDEN) document.body.classList.add('garden');
+  if (GARDEN) document.querySelectorAll('[data-t]').forEach(function (el) {
+    var key = el.getAttribute('data-t');
+    if (['adm.empty', 'adm.empty.sub', 'adm.clear'].indexOf(key) !== -1) el.setAttribute('data-t', 'garden.' + key);
+  });
   var inFrame = EMBED && window.parent !== window;
   if (EMBED) document.body.classList.add('embed');
   if (ONLY) document.body.classList.add('only-' + ONLY);
@@ -270,13 +277,13 @@
   }
 
   document.getElementById('link-tank').href = Tank.url;
-  document.getElementById('link-capture').href = Tank.url + '/capture';
+  document.getElementById('link-capture').href = Tank.url + '/capture' + (GARDEN ? '?world=garden' : '');
 
   // ── имя аквариума ──
   var meta = { id: Tank.id, name: I18N.t('home.create.value') };
 
   function renderMeta() {
-    document.getElementById('tank-name').textContent = '🐠 ' + meta.name;
+    document.getElementById('tank-name').textContent = (GARDEN ? '🦋 ' : '🐠 ') + meta.name;
     document.title = meta.name + ' — ' + I18N.t('adm.title');
   }
   renderMeta();
@@ -414,7 +421,7 @@
   }
 
   var titles = {};   // вид → название на трёх языках, из манифеста раскрасок
-  fetch('/assets/coloring/manifest.json')
+  fetch(GARDEN ? '/assets/garden/manifest.json' : '/assets/coloring/manifest.json')
     .then(function (r) { return r.json(); })
     .then(function (m) {
       m.fish.forEach(function (f) { titles[f.name] = f.titles || { ru: f.title }; });
@@ -468,10 +475,10 @@
     card.querySelector('button').onclick = function () {
       var btn = this, shot = card.querySelector('img');
       Modal.confirm({
-        title: I18N.t('adm.fish.del.title'),
+        title: I18N.t(GARDEN ? 'garden.adm.fish.del.title' : 'adm.fish.del.title'),
         // Про рисунок говорим отдельно: он единственный здесь
         // невосстановимый, и человеку важно знать, что копия остаётся.
-        text: I18N.t(pack ? 'adm.fish.del.pack' : 'adm.fish.del.painted'),
+        text: I18N.t(GARDEN ? 'garden.adm.fish.del.painted' : (pack ? 'adm.fish.del.pack' : 'adm.fish.del.painted')),
         image: shot ? shot.src : null,
         caption: card.querySelector('.name').textContent
       }).then(function (ok) {
@@ -492,12 +499,13 @@
 
   function refresh() {
     fetch(Tank.api + '/fish').then(function (r) { return r.json(); }).then(function (list) {
+      list = list.filter(function (item) { return /^garden-/.test(item.kind || '') === GARDEN; });
       var grid = document.getElementById('grid');
       var seen = {};
       document.getElementById('empty').hidden = list.length > 0;
       document.getElementById('clearrow').hidden = !list.length;
       document.getElementById('count').textContent =
-        list.length ? I18N.t('adm.fish.count', { n: list.length }) : '';
+        list.length ? I18N.t(GARDEN ? 'garden.drawings' : 'adm.fish.count', { n: list.length }) : '';
 
       list.slice().reverse().forEach(function (item) {
         seen[item.id] = true;
@@ -525,13 +533,18 @@
     var n = document.querySelectorAll('#grid .card').length;
     if (!n) return;
     Modal.confirm({
-      title: I18N.t('adm.clear.title'),
-      text: I18N.t('adm.clear.text', { n: n }),
-      confirmLabel: I18N.t('adm.clear')
+      title: I18N.t(GARDEN ? 'garden.adm.clear.title' : 'adm.clear.title'),
+      text: I18N.t(GARDEN ? 'garden.adm.clear.text' : 'adm.clear.text', { n: n }),
+      confirmLabel: I18N.t(GARDEN ? 'garden.adm.clear' : 'adm.clear')
     }).then(function (ok) {
       if (!ok) return;
-      Tank.send(Tank.api + '/fish', { method: 'DELETE' })
-        .then(function (r) { guard(r); refresh(); }, refresh);
+      Object.keys(cardById).reduce(function (pending, id) {
+        return pending.then(function () {
+          return Tank.send(Tank.api + '/fish/' + id, { method: 'DELETE' }).then(function (r) {
+            if (!guard(r) || !r.ok) throw new Error();
+          });
+        });
+      }, Promise.resolve()).then(refresh, refresh);
     });
   };
 

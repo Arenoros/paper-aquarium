@@ -32,6 +32,8 @@ class TankServer(
     }
 
     @Volatile private var feedAt = 0L
+    private val gardenKinds: Set<String> = JSONObject(assets.open("web/assets/garden/manifest.json").use { it.readBytes().toString(Charsets.UTF_8) })
+        .getJSONArray("fish").let { a -> (0 until a.length()).map { a.getJSONObject(it).getString("name") }.toSet() }
 
     override fun serve(s: IHTTPSession): Response = try {
         route(s)
@@ -48,6 +50,7 @@ class TankServer(
         if (uri == "/" || uri == "/index.html") return redirect(TANK_URL)
         if (uri == "/backup.zip") return backup(s)
         if (uri.startsWith("/api/")) return api(s, uri)
+        if (uri == TANK_URL || uri == "$TANK_URL/") return file(if (store.world() == "garden") "demos/garden.html" else "demos/realistic-tank.html")
         PAGES[uri]?.let { return file(it) }
         if (uri.startsWith("/assets/") || uri.startsWith("/vendor/") || uri == "/favicon.ico" || uri == "/print.html") {
             return file(uri.removePrefix("/"))
@@ -102,7 +105,12 @@ class TankServer(
             (m == Method.POST || m == Method.PUT) && u == "/settings" -> {
                 val bg = data?.optString("background")
                 // неизвестное имя фона не оставляет аквариум пустым — сохраняем прежний
-                if (bg != null && bg in backgrounds()) { store.setBackground(bg); events.settingsChanged() }
+                if (bg != null && bg in backgrounds()) store.setBackground(bg)
+                val world = data?.optString("world")
+                if (world == "garden" || world == "aquarium") store.setWorld(world)
+                val weather = data?.optString("gardenWeather")
+                if (weather == "sun" || weather == "rain") store.setGardenWeather(weather)
+                events.settingsChanged()
                 json(Response.Status.OK, settings().toString())
             }
             m == Method.POST && u == "/feed" -> {
@@ -167,7 +175,7 @@ class TankServer(
         // Вид — только из раскрасок (аудит 16.10.2026: строка без предела
         // уходила каждому зрителю аквариума).
         val kind = data.optString("kind")
-        if (!Regex("^[a-z0-9-]{1,40}$").matches(kind) || kind !in kinds) {
+        if (!Regex("^[a-z0-9-]{1,40}$").matches(kind) || (kind !in kinds && kind !in gardenKinds)) {
             return json(Response.Status.BAD_REQUEST, """{"error":"нет такой рыбки в раскрасках"}""")
         }
         val img = image(data.optString("texture"), FISH_BYTES)
@@ -208,11 +216,13 @@ class TankServer(
         .put("locked", false)
         // страницы прячут то, чего у ТВ нет: пароль, пин, список аквариумов, свои фоны
         .put("local", true)
+        .put("world", store.world())
         .put("fishCount", store.count())
         .put("preview", JSONObject.NULL)
         .put("backgroundUrl", store.background()?.let(::backgroundUrl) ?: JSONObject.NULL)
 
     private fun settings() = JSONObject()
+        .put("world", store.world()).put("gardenWeather", store.gardenWeather())
         .put("background", store.background() ?: JSONObject.NULL)
         .put("backgroundUrl", store.background()?.let(::backgroundUrl) ?: JSONObject.NULL)
         .put("feedAt", feedAt)

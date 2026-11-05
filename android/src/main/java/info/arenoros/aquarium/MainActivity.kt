@@ -17,6 +17,7 @@ import android.view.Surface
 import android.view.SurfaceView
 import android.view.View
 import android.view.WindowManager
+import android.webkit.WebView
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -41,6 +42,7 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
     companion object { init { Filament.init(); Gltfio.init() } }
 
     private lateinit var surface: SurfaceView
+    private lateinit var garden: WebView
     private lateinit var ui: UiHelper
     private lateinit var display: DisplayHelper
     private lateinit var engine: Engine
@@ -60,8 +62,8 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
     // Сервер пишет на диск из своих потоков, сцена живёт в главном.
     private val events = object : TankServer.Events {
         override fun fishChanged() { handler.post { aquarium.sync() } }
-        override fun settingsChanged() { handler.post { aquarium.sync() } }
-        override fun feed() { handler.post { aquarium.feed() } }
+        override fun settingsChanged() { handler.post { syncWorld(); aquarium.sync() } }
+        override fun feed() { handler.post { if (store.world() == "aquarium") aquarium.feed() } }
     }
 
     private var t0 = 0L
@@ -75,6 +77,16 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
         surface = SurfaceView(this)
         val root = FrameLayout(this)
         root.addView(surface)
+        garden = WebView(this).apply {
+            settings.javaScriptEnabled = true
+            settings.domStorageEnabled = true
+            settings.allowFileAccess = false
+            settings.allowContentAccess = false
+            isFocusable = false
+            isFocusableInTouchMode = false
+            visibility = View.GONE
+        }
+        root.addView(garden, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
         buildOverlay(root)
         setContentView(root)
 
@@ -125,25 +137,36 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
         server = runCatching {
             TankServer(assets, store, aquarium.kinds, events, cacheDir).apply { start(5000, false) }
         }.onFailure { Log.e("aqua", "сервер не поднялся на ${TankServer.PORT}", it) }.getOrNull()
+        syncWorld()
         aquarium.sync()   // пока нас не было, мог смениться фон или список
     }
 
     override fun onStop() {
+        garden.loadUrl("about:blank")
         server?.stop()
         server = null
         super.onStop()
     }
 
-    override fun onResume() { super.onResume(); choreographer.postFrameCallback(this) }
-    override fun onPause() { choreographer.removeFrameCallback(this); super.onPause() }
+    override fun onResume() { super.onResume(); garden.onResume(); choreographer.postFrameCallback(this) }
+    override fun onPause() { garden.onPause(); choreographer.removeFrameCallback(this); super.onPause() }
 
     override fun onDestroy() {
         ui.detach()
+        garden.destroy()
         engine.destroy()
         super.onDestroy()
     }
 
     // ── пульт ───────────────────────────────────────────────────────────────
+    private fun syncWorld() {
+        val show = store.world() == "garden"
+        garden.visibility = if (show) View.VISIBLE else View.GONE
+        if (show && server != null && garden.url?.startsWith("http://127.0.0.1:") != true) {
+            garden.loadUrl("http://127.0.0.1:${TankServer.PORT}${TankServer.TANK_URL}?tv&native")
+        } else if (!show) garden.loadUrl("about:blank")
+    }
+
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean = when (keyCode) {
         KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER, KeyEvent.KEYCODE_BUTTON_A -> {
             if (qrPanel.visibility == View.VISIBLE) hideQr() else showQr()
@@ -213,6 +236,7 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
         val t = (frameTimeNanos - t0) / 1e9
         val dt = min(t - lastT, 0.05).toFloat()
         lastT = t
+        if (garden.visibility == View.VISIBLE) return
         aquarium.update(t.toFloat(), dt)
 
         val sc = swapChain ?: return

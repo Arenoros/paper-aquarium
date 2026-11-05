@@ -372,10 +372,14 @@ const PACK_FILE = path.join(ROOT, 'assets', 'models', 'pack', 'pack.json');
 const SHEET_FILE = path.join(ROOT, 'assets', 'coloring', 'manifest.json');
 
 function sheetKinds() {
-  try {
-    const m = JSON.parse(fs.readFileSync(SHEET_FILE, 'utf8').replace(/^﻿/, ''));
-    return new Set((m.fish || []).map((f) => f.name));
-  } catch (e) { return new Set(); }
+  const names = [];
+  for (const file of [SHEET_FILE, path.join(ROOT, 'assets', 'garden', 'manifest.json')]) {
+    try {
+      const m = JSON.parse(fs.readFileSync(file, 'utf8').replace(/^﻿/, ''));
+      names.push(...(m.fish || []).map((f) => f.name));
+    } catch (e) { /* a missing pack must not disable the other world */ }
+  }
+  return new Set(names);
 }
 
 function listPack() {
@@ -829,7 +833,7 @@ function randomBackground() {
 }
 
 // ── настройки ──────────────────────────────────────────────────────────────
-const DEFAULT_SETTINGS = { background: null };
+const DEFAULT_SETTINGS = { background: null, world: 'aquarium', gardenWeather: 'sun' };
 
 function readSettings(t) {
   let s;
@@ -1043,6 +1047,7 @@ async function handleTankApi(req, res, t, url) {
 
   if (req.method === 'GET' && url === '/meta') {
     const s = readSettings(t);
+    const fish = listFish(t);
     let preview = null;
     try {
       // Метка времени в адресе: без неё браузер показывал бы вчерашний
@@ -1050,11 +1055,13 @@ async function handleTankApi(req, res, t, url) {
       preview = '/data/tanks/' + t.id + '/preview.jpg?v=' + fs.statSync(t.preview).mtimeMs;
     } catch (e) { /* снимка ещё нет */ }
     return send(res, 200, JSON.stringify(Object.assign(publicMeta(readMeta(t)), {
-      fishCount: listFish(t).length,
+      fishCount: fish.length,
+      world: s.world,
+      worldCount: fish.filter((f) => String(f.kind || '').startsWith('garden-') === (s.world === 'garden')).length,
       preview: preview,
       // Запасная картинка для карточки, пока снимка нет: фон доступен всегда,
       // а снимок появляется только когда аквариум кто-то открыл.
-      backgroundUrl: backgroundUrl(t, s.background)
+      backgroundUrl: s.world === 'garden' ? '/assets/garden/preview.svg' : backgroundUrl(t, s.background)
     })));
   }
 
@@ -1262,7 +1269,7 @@ async function handleTankApi(req, res, t, url) {
     // Если удалили фон, который сейчас стоит в сцене, — выдаём случайный,
     // иначе аквариум остался бы с битой ссылкой до следующей смены настроек.
     const s = readSettings(t);
-    if (s.background === name) { writeSettings(t, { background: randomBackground() }); notify(t); }
+    if (s.background === name) { s.background = randomBackground(); writeSettings(t, s); notify(t); }
     console.log(`- фон ${name} из ${t.id} → в корзину`);
     return send(res, 200, '{"ok":true}');
   }
@@ -1279,7 +1286,9 @@ async function handleTankApi(req, res, t, url) {
       // аквариум пустым, а сохраняет прежнюю картинку.
       const clean = {
         background: (typeof merged.background === 'string' && backgroundUrl(t, merged.background))
-          ? merged.background : cur.background
+          ? merged.background : cur.background,
+        world: ['aquarium', 'garden'].includes(merged.world) ? merged.world : cur.world,
+        gardenWeather: ['sun', 'rain'].includes(merged.gardenWeather) ? merged.gardenWeather : cur.gardenWeather
       };
       writeSettings(t, clean);
       notify(t);
@@ -1373,7 +1382,7 @@ async function handleApi(req, res, url) {
       writeData(t.meta, JSON.stringify(meta));
       // Новый аквариум сразу с картинкой: какая достанется — дело случая.
       const background = randomBackground();
-      writeSettings(t, { background });
+      writeSettings(t, { background, world: data.world === 'garden' ? 'garden' : 'aquarium', gardenWeather: 'sun' });
       console.log(`+ аквариум «${meta.name}» (${id}), фон ${background}`);
       // Единственный раз, когда пароль уходит с сервера в открытом виде:
       // страница показывает его хозяину и просит сохранить.
@@ -1399,7 +1408,8 @@ function pageFor(url) {
   if (!m || !TANK_ID_RE.test(m[1])) return null;
   if (m[2] === 'admin') return 'admin.html';
   if (m[2] === 'capture') return 'capture.html';
-  return 'demos/realistic-tank.html';
+  const t = tank(m[1]);
+  return fs.existsSync(t.dir) && readSettings(t).world === 'garden' ? 'demos/garden.html' : 'demos/realistic-tank.html';
 }
 
 // Раздаём перечисленное, а не всё, что лежит рядом с сервером. Иначе по сети

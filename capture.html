@@ -126,6 +126,7 @@
   .qrrow .qrbox svg { display: block; width: 96px; height: 96px; }
   .qrrow .qrtext { color: var(--muted); font-size: 13px; }
 </style>
+<link rel="stylesheet" href="/assets/garden-forms.css">
 </head>
 <body>
 
@@ -198,6 +199,14 @@
   // Снимать не в какой-то абстрактный аквариум, а в конкретный: адрес
   // страницы /t/<id>/capture говорит, в чей именно уплывёт рыбка.
   if (!Tank.id) { location.replace('/'); return; }
+  var GARDEN = new URLSearchParams(location.search).get('world') === 'garden';
+  if (GARDEN) {
+    document.body.classList.add('garden');
+    document.querySelectorAll('[data-t]').forEach(function (el) {
+      var key = el.getAttribute('data-t');
+      if (['cap.title', 'cap.sub', 'cap.back', 'cap.release', 'cap.done', 'cap.done.sub', 'cap.again'].indexOf(key) !== -1) el.setAttribute('data-t', 'garden.' + key);
+    });
+  }
 
   document.getElementById('back').href = Tank.url;
 
@@ -211,7 +220,7 @@
   if (!matchMedia('(pointer: coarse)').matches && window.qrcode) {
     try {
       var qr = qrcode(0, 'M');
-      qr.addData(location.origin + Tank.url + '/capture');
+      qr.addData(location.origin + Tank.url + '/capture' + (GARDEN ? '?world=garden' : ''));
       qr.make();
       document.getElementById('cap-qr').innerHTML = qr.createSvgTag(4, 0);
       document.getElementById('qrrow').hidden = false;
@@ -246,8 +255,8 @@
 
     // Аквариум не «на большом экране», а прямо за этим окном.
     var doneSub = document.getElementById('done-sub');
-    doneSub.setAttribute('data-t', 'cap.done.sub.embed');
-    doneSub.textContent = I18N.t('cap.done.sub.embed');
+    doneSub.setAttribute('data-t', GARDEN ? 'garden.cap.done.sub.embed' : 'cap.done.sub.embed');
+    doneSub.textContent = I18N.t(GARDEN ? 'garden.cap.done.sub.embed' : 'cap.done.sub.embed');
 
     // Меню открывает съёмку заново — начинать надо с камеры, а не с того
     // экрана, на котором ушли. Врезка живёт между открытиями, сама она
@@ -389,7 +398,7 @@
     document.getElementById(id).classList.add('on');
   }
 
-  fetch('/assets/coloring/manifest.json')
+  fetch(GARDEN ? '/assets/garden/manifest.json' : '/assets/coloring/manifest.json')
     .then(function (r) { return r.json(); })
     .then(function (m) { manifest = m; })
     .catch(function () {
@@ -416,11 +425,15 @@
     return FishCapture.processPhoto(source, manifest).then(function (r) {
       result = r;
       document.getElementById('p-name').textContent =
-        I18N.t('cap.itis', { name: (r.titles && (r.titles[I18N.lang] || r.titles.ru)) || r.title });
+        I18N.t(GARDEN ? 'garden.cap.itis' : 'cap.itis', { name: (r.titles && (r.titles[I18N.lang] || r.titles.ru)) || r.title });
       // ползунок стартует с авто-положения: бледный рисунок уже подкручен
       document.getElementById('boost').value = Math.round(r.boost.auto * 100);
       show('s-preview');
-      show3D(r.kind);
+      if (GARDEN) {
+        document.getElementById('stage3d').hidden = true;
+        document.getElementById('p-img').hidden = false;
+        document.getElementById('p-img').src = r.preview;
+      } else show3D(r.kind);
       return r;
     }, function (err) {
       document.getElementById('err-text').textContent = String(err.message || err);
@@ -499,7 +512,7 @@
 
   // Коды ответа сервера — словами, понятными ребёнку и родителю.
   function sendError(code) {
-    if (code === 409) return I18N.t('cap.err.full');
+    if (code === 409) return I18N.t(GARDEN ? 'garden.full' : 'cap.err.full');
     if (code === 413) return I18N.t('cap.err.heavy');
     if (code === 507) return I18N.t('cap.err.disk');
     if (code === 404) return I18N.t('cap.err.gone');

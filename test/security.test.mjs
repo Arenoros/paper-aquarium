@@ -126,6 +126,43 @@ test('тело «null», короткий пароль — 400, а не 500 и �
   assert.equal((await api('/api/tanks', { method: 'POST', json: { password: '1' }, headers: from('10.0.0.8') })).status, 400);
 });
 
+test('сад: раскраски, погода и переключение сохраняют рисунки обоих миров', async () => {
+  await api('/t/abcdefghjk');
+  assert.equal(fs.existsSync(path.join(dir, 'tanks', 'abcdefghjk')), false, 'открытие неизвестного кода не создаёт аквариум');
+  const response = await api('/api/tanks', { method: 'POST', json: { name: 'Сад', world: 'garden' }, headers: from('10.0.0.20') });
+  assert.equal(response.status, 200);
+  const t = await response.json(), prefix = '/api/t/' + t.id;
+  assert.match(await (await api('/t/' + t.id)).text(), /assets\/garden-page.js/);
+  const original = await (await api(prefix + '/settings')).json();
+  assert.equal(original.world, 'garden');
+  assert.equal(original.gardenWeather, 'sun');
+  for (const kind of ['garden-butterfly', 'garden-flower', 'clownfish']) {
+    const r = await api(prefix + '/fish', { method: 'POST', json: { kind, texture: dataUrl('png', png(64, 64)) } });
+    assert.equal(r.status, 200);
+  }
+  const meta = await (await api(prefix + '/meta')).json();
+  assert.equal(meta.worldCount, 2);
+  assert.equal(meta.fishCount, 3);
+  assert.equal(meta.backgroundUrl, '/assets/garden/preview.svg');
+  assert.equal((await api(prefix + '/fish', { method: 'POST', json: { kind: 'garden-unknown', texture: dataUrl('png', png(64, 64)) } })).status, 400);
+  await api(prefix + '/settings', { method: 'POST', json: { gardenWeather: 'rain', world: 'aquarium' } });
+  assert.match(await (await api('/t/' + t.id)).text(), /vendor\/three.min.js/);
+  await api(prefix + '/settings', { method: 'POST', json: { world: '__proto__', gardenWeather: 'storm', injected: true } });
+  const s = await (await api(prefix + '/settings')).json();
+  assert.equal(s.world, 'aquarium'); assert.equal(s.gardenWeather, 'rain');
+  assert.equal(s.background, original.background); assert.equal(s.injected, undefined);
+  const records = await (await api(prefix + '/fish')).json();
+  assert.deepEqual(records.map(r => r.kind).sort(), ['clownfish', 'garden-butterfly', 'garden-flower']);
+  const flower = records.find(r => r.kind === 'garden-flower');
+  assert.equal((await api(prefix + '/fish/' + flower.id, { method: 'DELETE' })).status, 401);
+  assert.equal((await api(prefix + '/fish/' + flower.id, { method: 'DELETE', headers: { 'X-Tank-Pass': t.password } })).status, 200);
+  assert.ok(fs.existsSync(path.join(dir, 'tanks', t.id, 'trash', flower.id + '.png')));
+  assert.equal((await (await api(prefix + '/fish')).json()).length, 2);
+  const gardenManifest = await api('/assets/garden/manifest.json');
+  assert.equal(gardenManifest.status, 200);
+  assert.equal((await gardenManifest.json()).fish.length, 2);
+});
+
 test('после всего сервер жив', async () => {
   assert.equal((await api('/robots.txt')).status, 200);
 });

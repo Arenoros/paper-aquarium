@@ -207,7 +207,7 @@
     })).then(function (pages) { return [].concat.apply([], pages); });
   }
 
-  fetch('/assets/coloring/manifest.json').then(function (r) { return r.json(); }).then(function (m) {
+  fetch(new URLSearchParams(location.search).get('world') === 'garden' ? '/assets/garden/manifest.json' : '/assets/coloring/manifest.json').then(function (r) { return r.json(); }).then(function (m) {
     return jobs(m).then(function (list) { run(m, list); });
   });
 

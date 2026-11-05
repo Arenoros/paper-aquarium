@@ -72,10 +72,17 @@ class TankStore(val dir: File) {
 
     @Synchronized fun trashAll(): Int = fish().count { trash(it.id) }
 
-    fun background(): String? = runCatching { JSONObject(settingsFile.readText()).optString("background") }
-        .getOrNull()?.ifEmpty { null }
+    private fun settings(): JSONObject = runCatching { JSONObject(settingsFile.readText()) }.getOrElse { JSONObject() }
 
-    @Synchronized fun setBackground(name: String) = write(settingsFile, JSONObject().put("background", name).toString().toByteArray())
+    fun background(): String? = settings().optString("background").ifEmpty { null }
+
+    fun world(): String = if (settings().optString("world") == "garden") "garden" else "aquarium"
+    fun gardenWeather(): String = if (settings().optString("gardenWeather") == "rain") "rain" else "sun"
+
+    @Synchronized fun setWorld(name: String) = write(settingsFile, settings().put("world", name).toString().toByteArray())
+    @Synchronized fun setGardenWeather(name: String) = write(settingsFile, settings().put("gardenWeather", name).toString().toByteArray())
+
+    @Synchronized fun setBackground(name: String) = write(settingsFile, settings().put("background", name).toString().toByteArray())
 
     fun name(): String = runCatching { JSONObject(metaFile.readText()).optString("name") }.getOrNull()?.ifEmpty { null } ?: "Мой аквариум"
     fun created(): String = runCatching { JSONObject(metaFile.readText()).optString("created") }.getOrNull()?.ifEmpty { null } ?: now()

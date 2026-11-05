@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-t="garden.title">Живой сад</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="stylesheet" href="/assets/garden.css">
+</head>
+<body>
+<canvas id="garden" data-t-alt="garden.title" role="img" aria-label="Живой сад"></canvas>
+<header id="toolbar">
+  <div class="brand"><span class="mark">🦋</span><div><h1 data-t="garden.title">Живой сад</h1><p id="count" data-t="garden.lead"></p></div></div>
+  <button id="open-menu" class="round" aria-expanded="false" aria-controls="menu" data-t-title="menu.hint">☰</button>
+</header>
+<section id="welcome" hidden>
+  <span class="eyebrow">✿ &nbsp; 🦋 &nbsp; ✿</span>
+  <h2 data-t="garden.empty"></h2><p data-t="garden.empty.hint"></p>
+  <button class="primary" id="first-print" data-t="garden.print"></button>
+  <button id="sample" data-t="garden.try"></button>
+</section>
+<nav id="play" aria-label="Управление садом">
+  <button id="nectar" data-t="garden.nectar"></button>
+  <button id="sun" aria-pressed="true" data-t="garden.sun"></button>
+  <button id="rain" aria-pressed="false" data-t="garden.rain"></button>
+</nav>
+<div id="menu" class="shade" hidden>
+  <section class="panel" role="dialog" aria-modal="true" aria-labelledby="panel-title">
+    <div class="panel-head"><h2 id="panel-title" data-t="garden.title"></h2><button id="close-menu" class="round" data-t-title="garden.close">✕</button></div>
+    <div id="menu-main">
+      <p class="intro" data-t="garden.lead"></p>
+      <button class="primary" id="capture" data-t="garden.capture"></button>
+      <button id="sheets" data-t="garden.print"></button>
+      <button id="manage" data-t="garden.manage"></button>
+      <button id="share" data-t="garden.share"></button>
+      <button id="aquarium" data-t="garden.aquarium"></button>
+      <p class="small" data-t="garden.shared"></p>
+      <a id="home" href="/" data-t="menu.home.title"></a><span id="lang"></span>
+    </div>
+    <div id="detail" hidden><button id="back" data-t="menu.back"></button><iframe id="frame" title=""></iframe><div id="sharing" hidden><div id="qr"></div><p id="share-hint"></p><input id="link" readonly aria-label="URL"><button id="pin-button" data-t="menu.share.pin"></button><p id="pin" aria-live="polite"></p></div></div>
+  </section>
+</div>
+<p id="status" role="status" aria-live="polite" hidden></p>
+<script src="/assets/i18n.js"></script>
+<script src="/assets/tank.js"></script>
+<script src="/vendor/qr.js"></script>
+<script src="/assets/garden-motion.js"></script>
+<script src="/assets/garden-scene.js"></script>
+<script src="/assets/garden-page.js"></script>
+</body>
+</html>

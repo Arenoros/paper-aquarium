@@ -1,0 +1,48 @@
+:root { color-scheme: light; --ink:#29463a; --muted:#64796b; --paper:#fffcf1; --accent:#416b48; }
+* { box-sizing:border-box; }
+html,body { margin:0; width:100%; height:100%; overflow:hidden; font:16px/1.5 "Segoe UI",system-ui,sans-serif; color:var(--ink); background:#c5dfb2; }
+[hidden] { display:none !important; }
+button,a,input { font:inherit; }
+button { cursor:pointer; border:1px solid #d5ddc8; border-radius:14px; background:var(--paper); color:var(--ink); padding:12px 18px; transition:background .15s,transform .15s; }
+button:hover { background:#edf2d9; }
+button:active { transform:translateY(1px); }
+button:disabled { opacity:.6; cursor:wait; }
+button:focus-visible,a:focus-visible,input:focus-visible { outline:3px solid #99762f; outline-offset:3px; }
+button.primary { background:var(--accent); color:#fffdf1; border-color:var(--accent); }
+button[aria-pressed="true"] { background:#e3efc2; border-color:#6c8c58; }
+#garden { display:block; width:100%; height:100%; }
+header { position:fixed; top:0; left:0; right:0; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:25px 32px; pointer-events:none; }
+header button { pointer-events:auto; box-shadow:0 4px 18px #34583c12; }
+.brand { display:flex; align-items:center; gap:14px; }
+.mark { font-size:38px; }
+h1 { font-size:24px; font-weight:650; letter-spacing:-.5px; margin:0; }
+.brand p { margin:2px 0 0; font-size:13px; color:var(--muted); max-width:470px; }
+.round { width:48px; height:48px; border-radius:50%; padding:0; flex:none; font-size:20px; }
+#welcome { position:fixed; width:min(440px,calc(100% - 36px)); left:50%; top:43%; transform:translate(-50%,-50%); padding:28px 32px; text-align:center; border:1px solid #fffbed; background:#fffcf1ed; border-radius:26px; box-shadow:0 18px 60px #355e3520; }
+.eyebrow { color:#859765; font-size:25px; letter-spacing:8px; }
+#welcome h2 { font-size:28px; line-height:1.2; margin:14px 0; font-weight:600; }
+#welcome p { font-size:15px; color:var(--muted); margin:0 0 22px; }
+#welcome button { width:100%; margin-top:10px; font-size:15px; }
+#play { position:fixed; bottom:25px; left:50%; transform:translateX(-50%); display:flex; gap:8px; padding:7px; background:#fffcf1d9; border:1px solid #ffffff7a; border-radius:22px; box-shadow:0 6px 24px #355e3520; white-space:nowrap; }
+#play button { border-radius:15px; }
+.shade { position:fixed; inset:0; background:#203c3040; z-index:5; overflow:auto; display:grid; place-items:center; padding:24px; }
+.panel { width:min(560px,100%); background:var(--paper); border:1px solid #fffdf5; border-radius:26px; padding:24px; box-shadow:0 24px 100px #183d3850; max-height:calc(100dvh - 48px); overflow:auto; }
+.panel-head { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.panel h2 { font-size:24px; margin:0; }
+.intro { color:var(--muted); margin:12px 0 20px; }
+#menu-main>button { display:block; width:100%; margin-top:9px; text-align:left; }
+.small { font-size:13px; color:var(--muted); margin:17px 0; }
+a { color:var(--accent); font-size:14px; }
+#lang { display:flex; gap:5px; margin-top:18px; }
+#lang button { padding:5px 9px; font-size:12px; }
+#back { font-size:14px; margin:12px 0; }
+iframe { width:100%; min-height:560px; border:0; background:var(--paper); }
+#qr { text-align:center; background:white; border-radius:18px; padding:20px; }
+#qr svg { width:min(260px,100%); height:auto; }
+#link { width:100%; padding:12px; background:#f1f1e2; border:1px solid #d5ddc8; border-radius:10px; color:var(--ink); }
+#pin-button { margin-top:12px; }
+#pin { font-size:30px; letter-spacing:8px; text-align:center; }
+#status { position:fixed; bottom:108px; left:50%; transform:translateX(-50%); margin:0; padding:12px 20px; background:var(--paper); border-radius:14px; box-shadow:0 4px 20px #234b3a20; z-index:8; max-width:calc(100% - 32px); }
+body.tv header,body.tv #play,body.tv #welcome { display:none !important; }
+@media(max-width:600px) { header { padding:18px; } h1 { font-size:21px; } .mark { font-size:30px; } .brand p { max-width:240px; font-size:12px; } #play { bottom:18px; width:calc(100% - 28px); justify-content:center; gap:5px; } #play button { padding:12px 9px; font-size:13px; } .shade { padding:12px; } .panel { padding:18px; max-height:calc(100dvh - 24px); } #welcome { padding:24px; } }
+@media(prefers-reduced-motion:reduce) { button { transition:none; } }

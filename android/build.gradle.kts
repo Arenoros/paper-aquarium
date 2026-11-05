@@ -63,7 +63,7 @@ abstract class WebRoot : DefaultTask() {
 
 val webRoot = tasks.register<WebRoot>("webRoot") {
     sources.from(fileTree("..") {
-        include("demos/realistic-tank.html", "capture.html", "admin.html", "print.html", "favicon.ico", "assets/**", "vendor/**")
+        include("demos/realistic-tank.html", "demos/garden.html", "capture.html", "admin.html", "print.html", "favicon.ico", "assets/**", "vendor/**")
         exclude("assets/backgrounds/*.png", "assets/models/README.md")
     })
     outputDir.set(layout.buildDirectory.dir("webroot"))
