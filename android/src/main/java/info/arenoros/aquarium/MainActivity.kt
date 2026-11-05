@@ -148,8 +148,19 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
         super.onStop()
     }
 
-    override fun onResume() { super.onResume(); garden.onResume(); choreographer.postFrameCallback(this) }
-    override fun onPause() { garden.onPause(); choreographer.removeFrameCallback(this); super.onPause() }
+    override fun onResume() {
+        super.onResume()
+        garden.onResume()
+        choreographer.postFrameCallback(this)
+        AppUpdate.resume(this)
+    }
+
+    override fun onPause() {
+        AppUpdate.pause(this)
+        garden.onPause()
+        choreographer.removeFrameCallback(this)
+        super.onPause()
+    }
 
     override fun onDestroy() {
         ui.detach()

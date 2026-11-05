@@ -5,4 +5,10 @@
     <string name="qr_sub">The phone must be on the same Wi-Fi</string>
     <string name="hint_ok">Press OK — QR code for the phone</string>
     <string name="no_network">No network: connect the TV to Wi-Fi</string>
+    <string name="update_title">App update</string>
+    <string name="update_permission">Version %1$s is available. Allow Aquarium to install apps from this source so it can update itself.</string>
+    <string name="update_settings">Open settings</string>
+    <string name="update_later">Later</string>
+    <string name="update_settings_unavailable">Open the TV settings and allow Aquarium to install unknown apps.</string>
+    <string name="update_failed">Could not install the Aquarium update.</string>
 </resources>

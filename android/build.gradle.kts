@@ -13,6 +13,7 @@ plugins {
 android {
     namespace = "info.arenoros.aquarium"
     compileSdk = 37
+    buildFeatures { resValues = true }
 
     defaultConfig {
         applicationId = "info.arenoros.aquarium"
@@ -20,6 +21,7 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "0.1"
+        resValue("bool", "auto_update", "false")
         providers.gradleProperty("aquaReleaseVersion").orNull?.let { version ->
             val pattern = Regex("(0|[1-9][0-9]{0,4})\\.(0|[1-9][0-9]?)\\.(0|[1-9][0-9]?)")
             val (major, minor, patch) = requireNotNull(pattern.matchEntire(version)) {
@@ -50,7 +52,11 @@ android {
         // Без пароля debug подписывается отладочным ключом — годится только
         // для пробников без данных, перед настоящей установкой их удаляют.
         debug { if (storePass != null) signingConfig = signingConfigs.getByName("aqua") }
-        release { signingConfig = signingConfigs.getByName("aqua") }
+        release {
+            signingConfig = signingConfigs.getByName("aqua")
+            val autoUpdate = providers.gradleProperty("aquaAutoUpdate").orNull == "true"
+            resValue("bool", "auto_update", autoUpdate.toString())
+        }
     }
 }
 

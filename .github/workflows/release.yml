@@ -45,6 +45,7 @@ jobs:
         working-directory: android
         env:
           TAG: ${{ github.ref_name }}
+          ORG_GRADLE_PROJECT_aquaAutoUpdate: 'true'
           SIGNING_KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
           ORG_GRADLE_PROJECT_aquaStorePassword: ${{ secrets.SIGNING_PASSWORD }}
         run: |

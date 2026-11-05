@@ -5,4 +5,10 @@
     <string name="qr_sub">Телефон должен быть в той же Wi-Fi</string>
     <string name="hint_ok">OK на пульте — QR для телефона</string>
     <string name="no_network">Нет сети: подключи телевизор к Wi-Fi</string>
+    <string name="update_title">Обновление приложения</string>
+    <string name="update_permission">Доступна версия %1$s. Разрешите «Аквариуму» установку из этого источника, чтобы приложение могло обновляться само.</string>
+    <string name="update_settings">Открыть настройки</string>
+    <string name="update_later">Позже</string>
+    <string name="update_settings_unavailable">Откройте настройки ТВ и разрешите «Аквариуму» установку неизвестных приложений.</string>
+    <string name="update_failed">Не удалось установить обновление «Аквариума».</string>
 </resources>

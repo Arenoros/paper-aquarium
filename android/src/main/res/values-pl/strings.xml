@@ -5,4 +5,10 @@
     <string name="qr_sub">Telefon musi być w tej samej sieci Wi-Fi</string>
     <string name="hint_ok">OK na pilocie — kod QR dla telefonu</string>
     <string name="no_network">Brak sieci: podłącz telewizor do Wi-Fi</string>
+    <string name="update_title">Aktualizacja aplikacji</string>
+    <string name="update_permission">Dostępna jest wersja %1$s. Zezwól aplikacji Akwarium na instalowanie z tego źródła, aby mogła się aktualizować.</string>
+    <string name="update_settings">Otwórz ustawienia</string>
+    <string name="update_later">Później</string>
+    <string name="update_settings_unavailable">Otwórz ustawienia telewizora i zezwól aplikacji Akwarium na instalowanie nieznanych aplikacji.</string>
+    <string name="update_failed">Nie udało się zainstalować aktualizacji aplikacji Akwarium.</string>
 </resources>
