@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Сад 3D — прототип</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #cfe3c0; font: 15px "Segoe UI", sans-serif; }
+  canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+  #bar { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; padding: 7px; background: #fffcf1d9; border-radius: 20px; }
+  button { border: 1px solid #d5ddc8; border-radius: 14px; background: #fffcf1; padding: 10px 14px; font: inherit; cursor: pointer; }
+  button[aria-pressed="true"] { background: #e3efc2; }
+  #fps { position: fixed; top: 10px; left: 12px; font: 13px monospace; color: #29463a; background: #fffcf1c0; padding: 4px 8px; border-radius: 8px; }
+</style>
+</head>
+<body>
+<canvas id="garden"></canvas>
+<div id="fps"></div>
+<div id="bar">
+  <button id="sun" aria-pressed="true">Солнышко</button>
+  <button id="rain" aria-pressed="false">Дождик</button>
+  <button id="nectar">Позвать на нектар</button>
+  <button id="addB">+ бабочка</button>
+  <button id="addF">+ цветок</button>
+</div>
+<script src="/vendor/three.min.js"></script>
+<script src="/assets/garden-flight.js"></script>
+<script src="/assets/garden-world.js"></script>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search), $ = function (id) { return document.getElementById(id); };
+  if (q.has('ui') && q.get('ui') === '0') $('bar').hidden = true;
+  fetch('/assets/garden/manifest.json').then(function (r) { return r.json(); }).then(function (m) {
+    var world = window.world = new GardenWorld($('garden'), m, { pixelRatio: Number(q.get('dpr')) || 0 });
+    var kinds = function (type) { return m.fish.filter(function (f) { return !f.legacy && f.type === type; }); };
+    var records = [], n = 0;
+    function add(type) {
+      var list = kinds(type), spec = list[n % list.length];
+      records.push({ id: 'proto-' + type + '-' + (n++), kind: spec.name, textureUrl: '/' + spec.ready });
+      world.sync(records, '');
+    }
+    for (var i = 0; i < Number(q.get('f') || 3); i++) add('flower');
+    for (var j = 0; j < Number(q.get('b') || 3); j++) add('butterfly');
+    $('addB').onclick = function () { add('butterfly'); };
+    $('addF').onclick = function () { add('flower'); };
+    $('nectar').onclick = function () { world.nectar(); };
+    ['sun', 'rain'].forEach(function (w) {
+      $(w).onclick = function () {
+        world.weather = w;
+        $('sun').setAttribute('aria-pressed', w === 'sun'); $('rain').setAttribute('aria-pressed', w === 'rain');
+      };
+    });
+    if (q.get('weather') === 'rain') $('rain').onclick();
+    world.start();
+    // fps: на экран раз в секунду, в консоль (logcat на ТВ) раз в 5 с
+    var frames = 0, worst = 0, last = performance.now(), mark = last, logged = last;
+    (function tick(now) {
+      frames++; worst = Math.max(worst, now - last); last = now;
+      if (now - mark > 1000) {
+        var fps = (frames * 1000) / (now - mark), c = $('garden');
+        $('fps').textContent = fps.toFixed(1) + ' fps · худший ' + worst.toFixed(0) + ' мс · ' + c.width + '×' + c.height + ' · ' + records.length + ' рис.';
+        if (now - logged > 5000) { console.log('garden fps ' + fps.toFixed(1) + ' worst ' + worst.toFixed(0) + 'ms buf ' + c.width + 'x' + c.height + ' n ' + records.length); logged = now; }
+        frames = 0; worst = 0; mark = now;
+      }
+      requestAnimationFrame(tick);
+    })(last);
+  });
+})();
+</script>
+</body>
+</html>

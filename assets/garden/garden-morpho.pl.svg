@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="297mm" height="210mm" viewBox="0 0 297 210">
+<rect width="297" height="210" fill="#fff"/>
+<rect x="8" y="8" width="18" height="18" fill="#000"/><rect x="14" y="11" width="3" height="3" fill="#fff"/><rect x="20" y="11" width="3" height="3" fill="#fff"/><rect x="20" y="14" width="3" height="3" fill="#fff"/><rect x="11" y="17" width="3" height="3" fill="#fff"/><rect x="14" y="17" width="3" height="3" fill="#fff"/><rect x="20" y="17" width="3" height="3" fill="#fff"/>
+<rect x="271" y="8" width="18" height="18" fill="#000"/><rect x="274" y="11" width="3" height="3" fill="#fff"/><rect x="277" y="11" width="3" height="3" fill="#fff"/><rect x="280" y="11" width="3" height="3" fill="#fff"/><rect x="274" y="14" width="3" height="3" fill="#fff"/><rect x="280" y="17" width="3" height="3" fill="#fff"/><rect x="283" y="17" width="3" height="3" fill="#fff"/>
+<rect x="8" y="184" width="18" height="18" fill="#000"/><rect x="11" y="187" width="3" height="3" fill="#fff"/><rect x="14" y="187" width="3" height="3" fill="#fff"/><rect x="20" y="187" width="3" height="3" fill="#fff"/><rect x="14" y="190" width="3" height="3" fill="#fff"/><rect x="17" y="193" width="3" height="3" fill="#fff"/><rect x="20" y="193" width="3" height="3" fill="#fff"/>
+<rect x="271" y="184" width="18" height="18" fill="#000"/><rect x="280" y="187" width="3" height="3" fill="#fff"/><rect x="283" y="187" width="3" height="3" fill="#fff"/><rect x="274" y="190" width="3" height="3" fill="#fff"/><rect x="277" y="190" width="3" height="3" fill="#fff"/><rect x="280" y="193" width="3" height="3" fill="#fff"/><rect x="283" y="193" width="3" height="3" fill="#fff"/>
+<defs><path id="garden-morpho-0" d="M488 292 C380 292 255 318 195 372 C158 432 162 525 226 590 C258 620 310 642 360 632 C408 622 452 566 478 474 C486 420 488 340 488 292 Z"/><clipPath id="garden-morpho-0c"><use href="#garden-morpho-0"/></clipPath><path id="garden-morpho-1" d="M 512 292 C 620 292 745 318 805 372 C 842 432 838 525 774 590 C 742 620 690 642 640 632 C 592 622 548 566 522 474 C 514 420 512 340 512 292 Z"/><clipPath id="garden-morpho-1c"><use href="#garden-morpho-1"/></clipPath><path id="garden-morpho-2" d="M486 222 C400 166 240 116 92 116 C50 116 32 146 42 182 C66 262 116 322 136 394 C142 410 154 418 170 415 C300 382 400 334 482 302 C490 278 490 246 486 222 Z"/><clipPath id="garden-morpho-2c"><use href="#garden-morpho-2"/></clipPath><path id="garden-morpho-3" d="M 514 222 C 600 166 760 116 908 116 C 950 116 968 146 958 182 C 934 262 884 322 864 394 C 858 410 846 418 830 415 C 700 382 600 334 518 302 C 510 278 510 246 514 222 Z"/><clipPath id="garden-morpho-3c"><use href="#garden-morpho-3"/></clipPath><path id="garden-morpho-4" d="M515 400 515 416 514 431 514 446 513 460 512 473 510 485 509 495 507 503 505 510 503 515 502 517 499 518 498 516 496 513 494 507 492 499 490 490 489 479 488 467 487 453 486 439 485 424 485 408 485 392 485 376 486 361 487 347 488 333 489 321 490 310 492 301 494 293 496 287 498 284 499 282 502 283 503 285 505 290 507 297 509 305 510 315 512 327 513 340 514 354 514 369 515 384Z M522 252 521 267 519 281 514 293 509 301 503 305 497 305 491 301 486 293 481 281 479 267 478 252 479 237 481 223 486 211 491 203 497 199 503 199 509 203 514 211 519 223 521 237Z M519 190 516 200 510 206 500 209 491 206 484 200 481 190 484 181 491 174 500 171 510 174 516 181Z"/><clipPath id="garden-morpho-4c"><use href="#garden-morpho-4"/></clipPath></defs>
+<g transform="matrix(0.21245 0 0 0.21245 42.27537 21.26624)">
+<use href="#garden-morpho-0" fill="#fff"/>
+<g clip-path="url(#garden-morpho-0c)">
+<path d="M230 330 C200 420 218 520 292 572 C332 598 384 594 416 572 L440 720 L80 720 L80 300 Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M195 432 196 437 199 440 204 441 208 440 212 437 213 432 212 428 208 424 204 423 199 424 196 428 Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M200 490 201 495 205 499 210 500 215 499 219 495 220 490 219 485 215 481 210 480 205 481 201 485 Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M228 545 229 550 233 554 238 555 243 554 247 550 248 545 247 540 243 536 238 535 233 536 229 540 Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M279 586 280 591 283 594 288 595 292 594 296 591 297 586 296 582 292 578 288 577 283 578 280 582 Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M330 604 331 608 334 611 338 612 342 611 345 608 346 604 345 600 342 597 338 596 334 597 331 600 Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M472 318 C380 360 300 400 212 452 " fill="none" stroke="#8a8a8a" stroke-width="2.3535" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M474 340 C400 410 340 480 262 556 " fill="none" stroke="#8a8a8a" stroke-width="2.3535" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M476 360 C440 450 410 530 368 610 " fill="none" stroke="#8a8a8a" stroke-width="2.3535" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<use href="#garden-morpho-0" fill="none" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<use href="#garden-morpho-1" fill="#fff"/>
+<g clip-path="url(#garden-morpho-1c)">
+<path d="M 770 330 C 800 420 782 520 708 572 C 668 598 616 594 584 572 L 560 720 L 920 720 L 920 300 Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M805 432 804 437 801 440 796 441 792 440 788 437 787 432 788 428 792 424 796 423 801 424 804 428Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M800 490 799 495 795 499 790 500 785 499 781 495 780 490 781 485 785 481 790 480 795 481 799 485Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M772 545 771 550 767 554 762 555 757 554 753 550 752 545 753 540 757 536 762 535 767 536 771 540Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M721 586 720 591 717 594 712 595 708 594 704 591 703 586 704 582 708 578 712 577 717 578 720 582Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M670 604 669 608 666 611 662 612 658 611 655 608 654 604 655 600 658 597 662 596 666 597 669 600Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M 528 318 C 620 360 700 400 788 452" fill="none" stroke="#8a8a8a" stroke-width="2.3535" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 526 340 C 600 410 660 480 738 556" fill="none" stroke="#8a8a8a" stroke-width="2.3535" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 524 360 C 560 450 590 530 632 610" fill="none" stroke="#8a8a8a" stroke-width="2.3535" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<use href="#garden-morpho-1" fill="none" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<use href="#garden-morpho-2" fill="#fff"/>
+<g clip-path="url(#garden-morpho-2c)">
+<path d="M444 214 C360 170 240 168 188 214 C148 262 148 340 160 430 L0 430 L0 40 L444 40 Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M80 160 82 168 87 173 95 175 102 173 108 168 110 160 108 153 102 147 95 145 87 147 82 153 Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M102 212 104 219 109 224 116 226 123 224 128 219 130 212 128 205 123 200 116 198 109 200 104 205 Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M118 262 120 268 124 272 130 274 136 272 140 268 142 262 140 256 136 252 130 250 124 252 120 256 Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M135 312 136 317 140 321 145 322 150 321 154 317 155 312 154 307 150 303 145 302 140 303 136 307 Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M233 160 234 165 237 168 242 169 246 168 250 165 251 160 250 156 246 152 242 151 237 152 234 156 Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M172 150 173 155 177 159 182 160 187 159 191 155 192 150 191 145 187 141 182 140 177 141 173 145 Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M464 246 C360 214 260 196 160 194 " fill="none" stroke="#8a8a8a" stroke-width="2.3535" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M462 262 C350 250 260 256 164 282 " fill="none" stroke="#8a8a8a" stroke-width="2.3535" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M460 278 C360 296 280 330 170 372 " fill="none" stroke="#8a8a8a" stroke-width="2.3535" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<use href="#garden-morpho-2" fill="none" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<use href="#garden-morpho-3" fill="#fff"/>
+<g clip-path="url(#garden-morpho-3c)">
+<path d="M 556 214 C 640 170 760 168 812 214 C 852 262 852 340 840 430 L 1000 430 L 1000 40 L 556 40 Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M920 160 918 168 913 173 905 175 898 173 892 168 890 160 892 153 898 147 905 145 913 147 918 153Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M898 212 896 219 891 224 884 226 877 224 872 219 870 212 872 205 877 200 884 198 891 200 896 205Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M882 262 880 268 876 272 870 274 864 272 860 268 858 262 860 256 864 252 870 250 876 252 880 256Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M865 312 864 317 860 321 855 322 850 321 846 317 845 312 846 307 850 303 855 302 860 303 864 307Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M767 160 766 165 763 168 758 169 754 168 750 165 749 160 750 156 754 152 758 151 763 152 766 156Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M828 150 827 155 823 159 818 160 813 159 809 155 808 150 809 145 813 141 818 140 823 141 827 145Z" fill="#fff" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M 536 246 C 640 214 740 196 840 194" fill="none" stroke="#8a8a8a" stroke-width="2.3535" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 538 262 C 650 250 740 256 836 282" fill="none" stroke="#8a8a8a" stroke-width="2.3535" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 540 278 C 640 296 720 330 830 372" fill="none" stroke="#8a8a8a" stroke-width="2.3535" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<use href="#garden-morpho-3" fill="none" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<use href="#garden-morpho-4" fill="#fff"/>
+<g clip-path="url(#garden-morpho-4c)">
+<path d="M 484 300 Q 500 306 516 300" fill="none" stroke="#8a8a8a" stroke-width="2.3535" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 484 330 Q 500 336 516 330" fill="none" stroke="#8a8a8a" stroke-width="2.3535" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 484 360 Q 500 366 516 360" fill="none" stroke="#8a8a8a" stroke-width="2.3535" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 484 390 Q 500 396 516 390" fill="none" stroke="#8a8a8a" stroke-width="2.3535" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 484 420 Q 500 426 516 420" fill="none" stroke="#8a8a8a" stroke-width="2.3535" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 484 450 Q 500 456 516 450" fill="none" stroke="#8a8a8a" stroke-width="2.3535" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 484 480 Q 500 486 516 480" fill="none" stroke="#8a8a8a" stroke-width="2.3535" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<use href="#garden-morpho-4" fill="none" stroke="#7a7a7a" stroke-width="3.53025" stroke-linejoin="round"/>
+<path d="M 508 176 C 520 128 548 92 578 70 M586 72 582 75 578 77 574 75 572 72 573 67 576 62 580 59 584 57 588 59 590 62 589 67Z" fill="none" stroke="#555" stroke-width="4.23631" stroke-linecap="round"/><path d="M492 176 C480 128 452 92 422 70 M414 72 418 75 422 77 426 75 428 72 427 67 424 62 420 59 416 57 412 59 410 62 411 67 Z" fill="none" stroke="#555" stroke-width="4.23631" stroke-linecap="round"/>
+<path d="M85 116 127 117 176 121 233 129 287 141 351 159 405 180 455 204 481 219 483 219 486 210 489 206 489 204 484 200 481 191 484 181 491 174 498 171 511 174 516 181 519 191 516 200 511 206 514 211 517 219 519 219 532 211 572 190 615 172 649 159 686 148 741 134 819 121 851 118 892 116 915 116 929 119 942 125 950 131 957 142 961 157 961 169 959 180 948 211 936 240 883 342 873 367 864 395 861 402 853 410 844 415 831 415 822 413 828 440 828 469 826 492 822 509 811 537 799 560 784 580 772 592 761 602 742 614 722 623 699 631 680 634 659 635 639 632 624 627 605 616 596 610 572 584 555 558 539 525 522 474 517 434 516 408 514 429 513 462 509 496 503 516 499 518 497 515 493 506 489 488 484 408 482 441 478 477 468 507 456 536 434 575 416 597 404 610 387 621 376 627 361 632 341 635 330 635 304 631 283 625 258 614 244 605 228 592 213 576 197 552 189 537 178 509 172 479 172 448 174 426 178 413 169 415 156 415 147 410 139 402 122 354 104 317 64 240 52 211 41 180 39 169 40 153 43 142 48 134 56 127 66 121 76 117 85 117Z" fill="none" stroke="#555" stroke-width="7.53121" stroke-linejoin="round"/>
+</g>
+<text x="148.5" y="197" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="7.0" font-weight="600" fill="#444">Morfo</text>
+</svg>

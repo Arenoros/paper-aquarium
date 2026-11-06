@@ -5,7 +5,7 @@
   var query = new URLSearchParams(location.search), tv = query.has('tv');
   if (tv) document.body.classList.add('tv');
   I18N.mount($('lang'));
-  var scene, manifest, records = [], feedAt, live, polling, messageTimer, previousFocus;
+  var scene, manifest, records = [], feedAt, live, polling, messageTimer, previousFocus, local = tv, shotTimer, shotLast = 0;
 
   function status(key) {
     $('status').textContent = I18N.t(key); $('status').hidden = false;
@@ -25,14 +25,18 @@
   }
   function applyFish(list) {
     if (!Array.isArray(list)) return;
+    var before = records.map(function (r) { return r.id; }).join();
     records = list.filter(function (r) { return !!scene.specs[r.kind]; });
     scene.sync(records, Tank.api);
+    if (records.map(function (r) { return r.id; }).join() !== before) wantShot(6);
     $('welcome').hidden = records.length > 0;
     $('count').textContent = records.length ? I18N.t('garden.drawings', { n: records.length }) : I18N.t('garden.lead');
   }
   function applySettings(s) {
     if (s.world !== 'garden') { location.replace(Tank.url + location.search); return; }
-    scene.weather = s.gardenWeather === 'rain' ? 'rain' : 'sun';
+    var weather = s.gardenWeather === 'rain' ? 'rain' : 'sun';
+    if (weather !== scene.weather) wantShot(5);
+    scene.weather = weather;
     $('sun').setAttribute('aria-pressed', scene.weather === 'sun' ? 'true' : 'false');
     $('rain').setAttribute('aria-pressed', scene.weather === 'rain' ? 'true' : 'false');
     if (s.feedAt !== undefined) {
@@ -45,6 +49,19 @@
       fetch(Tank.api + '/fish').then(json).then(applyFish),
       fetch(Tank.api + '/settings').then(json).then(applySettings)
     ]).catch(function () { status('garden.offline'); });
+  }
+  // Снимок для карточки на главной, как у аквариума: после перемен, не чаще
+  // раза в 10 с, и сразу — когда со страницы уходят. На ТВ карточек нет.
+  function takeShot(beacon) {
+    if (local || !scene || !records.length) return;
+    shotLast = Date.now();
+    var body = JSON.stringify({ image: scene.snapshot(480, 270) });
+    if (beacon && navigator.sendBeacon) { navigator.sendBeacon(Tank.api + '/preview', new Blob([body], { type: 'application/json' })); return; }
+    fetch(Tank.api + '/preview', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body }).catch(function () { /* карточка покажет запасную картинку */ });
+  }
+  function wantShot(delay) {
+    clearTimeout(shotTimer);
+    shotTimer = setTimeout(function () { shotTimer = null; takeShot(false); }, Math.max(delay * 1000, 10000 - (Date.now() - shotLast)));
   }
   function stopUpdates() {
     if (live) { live.close(); live = null; }
@@ -82,7 +99,6 @@
   }
   $('open-menu').onclick = openMenu; $('close-menu').onclick = closeMenu; $('back').onclick = main;
   $('menu').onclick = function (e) { if (e.target === $('menu')) closeMenu(); };
-  $('garden').onclick = function () { if (!query.has('native')) openMenu(); };
   addEventListener('keydown', function (e) {
     if ($('menu').hidden) return;
     if (e.key === 'Escape') { closeMenu(); e.preventDefault(); }
@@ -105,10 +121,26 @@
   ['sun', 'rain'].forEach(function (weather) {
     $(weather).onclick = function () { run(this, function () { return post('/settings', { gardenWeather: weather }).then(applySettings); }); };
   });
+  // «Попробовать с готовыми»: три цветка и две бабочки в родных цветах вида.
+  function ready(spec) {
+    return new Promise(function (resolve, reject) {
+      var img = new Image();
+      img.onload = function () {
+        var c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
+        c.getContext('2d').drawImage(img, 0, 0); resolve(c.toDataURL('image/png'));
+      };
+      img.onerror = reject; img.src = '/' + spec.ready;
+    });
+  }
+  function pick(type, n) {
+    var list = manifest.fish.filter(function (f) { return f.type === type && !f.legacy; });
+    for (var i = list.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = list[i]; list[i] = list[j]; list[j] = t; }
+    return list.slice(0, n);
+  }
   $('sample').onclick = function () {
     run(this, function () {
-      return manifest.fish.slice().reverse().reduce(function (promise, spec) {
-        return promise.then(function () { return post('/fish', { kind: spec.name, texture: GardenSprites.sample(spec) }); });
+      return pick('flower', 3).concat(pick('butterfly', 2)).reduce(function (promise, spec) {
+        return promise.then(function () { return ready(spec); }).then(function (texture) { return post('/fish', { kind: spec.name, texture: texture }); });
       }, Promise.resolve()).finally(refresh);
     });
   };
@@ -133,14 +165,15 @@
   addEventListener('aqua:lang', function () { if (scene) applyFish(records); });
   document.addEventListener('visibilitychange', function () {
     if (!scene) return;
-    if (document.hidden) { stopUpdates(); scene.stop(); } else { startUpdates(); scene.start(); }
+    if (document.hidden) { if (shotTimer) { clearTimeout(shotTimer); shotTimer = null; takeShot(true); } stopUpdates(); scene.stop(); }
+    else { startUpdates(); scene.start(); }
   });
   fetch('/assets/garden/manifest.json').then(json).then(function (m) {
-    manifest = m; scene = new GardenScene($('garden'), manifest);
+    manifest = m; scene = new GardenWorld($('garden'), manifest);
     window.gardenScene = scene;
     scene.start(); startUpdates();
     return fetch(Tank.api + '/meta').then(json);
   }).then(function (meta) {
-    if (meta.local) { $('home').hidden = true; $('pin-button').hidden = true; }
+    if (meta.local) { local = true; $('home').hidden = true; $('pin-button').hidden = true; }
   }).catch(function () { status('garden.offline'); });
 })();

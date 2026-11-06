@@ -731,6 +731,8 @@ function readBody(req, res, onDone) {
 }
 
 // ── рыбки ──────────────────────────────────────────────────────────────────
+const isGardenKind = (kind) => String(kind || '').startsWith('garden-');
+
 function listFish(t) {
   try {
     return fs.readdirSync(t.fish)
@@ -1057,7 +1059,7 @@ async function handleTankApi(req, res, t, url) {
     return send(res, 200, JSON.stringify(Object.assign(publicMeta(readMeta(t)), {
       fishCount: fish.length,
       world: s.world,
-      worldCount: fish.filter((f) => String(f.kind || '').startsWith('garden-') === (s.world === 'garden')).length,
+      worldCount: fish.filter((f) => isGardenKind(f.kind) === (s.world === 'garden')).length,
       preview: preview,
       // Запасная картинка для карточки, пока снимка нет: фон доступен всегда,
       // а снимок появляется только когда аквариум кто-то открыл.
@@ -1159,11 +1161,16 @@ async function handleTankApi(req, res, t, url) {
   //                  внутри модели.
   // У старых записей поля type нет — они раскрашенные по умолчанию.
   if (req.method === 'POST' && url === '/fish') {
-    if (listFish(t).length >= LIMITS.fish) {
+    if (listFish(t).length >= LIMITS.fish * 2) {
       return send(res, 409, JSON.stringify({ error: 'в аквариуме уже ' + LIMITS.fish + ' рыбок — тесно' }));
     }
     if (diskFull()) return send(res, 507, '{"error":"на сервере кончилось место"}');
     return readBody(req, res, (data) => {
+      // Предел — свой у каждого мира: рыбки не отнимают место у рисунков сада.
+      const garden = data.type !== 'pack' && isGardenKind(data.kind);
+      if (listFish(t).filter((f) => isGardenKind(f.kind) === garden).length >= LIMITS.fish) {
+        return send(res, 409, JSON.stringify({ error: 'в аквариуме уже ' + LIMITS.fish + ' рыбок — тесно' }));
+      }
       const fid = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
 
       if (data.type === 'pack') {
@@ -1291,6 +1298,9 @@ async function handleTankApi(req, res, t, url) {
         gardenWeather: ['sun', 'rain'].includes(merged.gardenWeather) ? merged.gardenWeather : cur.gardenWeather
       };
       writeSettings(t, clean);
+      // Снимок на карточке — из прежнего мира; пусть до нового снимка
+      // карточка покажет картинку мира, а не чужих рыбок.
+      if (clean.world !== cur.world) fs.rm(t.preview, { force: true }, () => {});
       notify(t);
       send(res, 200, JSON.stringify(clean));
     });

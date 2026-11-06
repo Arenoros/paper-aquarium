@@ -2,6 +2,7 @@ package info.arenoros.aquarium
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -128,7 +129,16 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         if (intent.getBooleanExtra("feed", false)) aquarium.feed()
+        // Пробник для замеров, только в debug: страница с ПК через adb reverse,
+        //   adb reverse tcp:8001 tcp:8000
+        //   adb shell am start -n info.arenoros.aquarium.debug/info.arenoros.aquarium.MainActivity \
+        //     -e url "http://127.0.0.1:8001/tools/garden-proto.html?b=20&f=20&ui=0"
+        if (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0) {
+            intent.getStringExtra("url")?.let { probeUrl = it; syncWorld() }
+        }
     }
+
+    private var probeUrl: String? = null
 
     // Сервер живёт, пока аквариум на экране (ADR 0001): выключенный ТВ рыбок
     // не принимает, а страница съёмки предлагает «Отправить снова».
@@ -171,6 +181,11 @@ class MainActivity : Activity(), Choreographer.FrameCallback {
 
     // ── пульт ───────────────────────────────────────────────────────────────
     private fun syncWorld() {
+        probeUrl?.let {
+            garden.visibility = View.VISIBLE
+            if (garden.url != it) garden.loadUrl(it)
+            return
+        }
         val show = store.world() == "garden"
         garden.visibility = if (show) View.VISIBLE else View.GONE
         if (show && server != null && garden.url?.startsWith("http://127.0.0.1:") != true) {

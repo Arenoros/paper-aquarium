@@ -478,7 +478,7 @@
         title: I18N.t(GARDEN ? 'garden.adm.fish.del.title' : 'adm.fish.del.title'),
         // Про рисунок говорим отдельно: он единственный здесь
         // невосстановимый, и человеку важно знать, что копия остаётся.
-        text: I18N.t(GARDEN ? 'garden.adm.fish.del.painted' : (pack ? 'adm.fish.del.pack' : 'adm.fish.del.painted')),
+        text: I18N.t(GARDEN ? (meta.local ? 'garden.adm.fish.del.painted.tv' : 'garden.adm.fish.del.painted') : (pack ? 'adm.fish.del.pack' : 'adm.fish.del.painted')),
         image: shot ? shot.src : null,
         caption: card.querySelector('.name').textContent
       }).then(function (ok) {

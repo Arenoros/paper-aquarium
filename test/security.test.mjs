@@ -160,7 +160,29 @@ test('сад: раскраски, погода и переключение со�
   assert.equal((await (await api(prefix + '/fish')).json()).length, 2);
   const gardenManifest = await api('/assets/garden/manifest.json');
   assert.equal(gardenManifest.status, 200);
-  assert.equal((await gardenManifest.json()).fish.length, 2);
+  // Первые два вида остаются (их рисунки уже на телевизорах), у новых есть 3D.
+  const kinds = (await gardenManifest.json()).fish;
+  assert.deepEqual(kinds.filter((f) => f.legacy).map((f) => f.name).sort(), ['garden-butterfly', 'garden-flower']);
+  const fresh = kinds.filter((f) => !f.legacy);
+  assert.ok(fresh.length > 0);
+  for (const f of fresh) assert.ok(f.three && ['butterfly', 'flower'].includes(f.type) && f.ready, f.name);
+});
+
+test('предел свой у каждого мира: полный сад не мешает рыбкам', async () => {
+  const response = await api('/api/tanks', { method: 'POST', json: { name: 'Полный сад', world: 'garden' }, headers: from('10.0.0.31') });
+  assert.equal(response.status, 200);
+  const t = await response.json(), prefix = '/api/t/' + t.id, texture = dataUrl('png', png(16, 16));
+  for (let i = 0; i < 40; i++) {
+    assert.equal((await api(prefix + '/fish', { method: 'POST', json: { kind: 'garden-morpho', texture } })).status, 200);
+  }
+  assert.equal((await api(prefix + '/fish', { method: 'POST', json: { kind: 'garden-iris', texture } })).status, 409);
+  assert.equal((await api(prefix + '/fish', { method: 'POST', json: { kind: 'clownfish', texture } })).status, 200);
+  // Снимок карточки — из прежнего мира: при смене мира он сбрасывается.
+  assert.equal((await api(prefix + '/preview', { method: 'POST', json: { image: dataUrl('jpeg', fs.readFileSync('assets/og.jpg')) } })).status, 200);
+  assert.ok((await (await api(prefix + '/meta')).json()).preview);
+  await api(prefix + '/settings', { method: 'POST', json: { world: 'aquarium' } });
+  await new Promise((r) => setTimeout(r, 50));
+  assert.equal((await (await api(prefix + '/meta')).json()).preview, null);
 });
 
 test('после всего сервер жив', async () => {

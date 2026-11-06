@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Виды сада — лист и готовый рисунок</title>
+<style>
+  #list { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  body { margin: 0; padding: 24px; font: 15px/1.4 "Segoe UI", sans-serif; background: #eef0e6; color: #29463a; }
+  .kind { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; align-items: center; background: #fffcf1; border-radius: 18px; padding: 16px; }
+  h2 { grid-column: 1 / -1; margin: 0; font-size: 20px; }
+  img { width: 100%; display: block; }
+  .sheet { border: 1px solid #d5ddc8; background: #fff; }
+  .ready { background: repeating-conic-gradient(#e6e6e6 0 25%, #fff 0 50%) 0 0 / 20px 20px; border-radius: 10px; }
+</style>
+</head>
+<body>
+<div id="list"></div>
+<script>
+// ?ready — только готовые рисунки крупно; ?type=flower|butterfly — один тип.
+var Q = new URLSearchParams(location.search);
+if (Q.has('ready')) document.head.insertAdjacentHTML('beforeend',
+  '<style>#list{grid-template-columns:1fr 1fr 1fr}.kind{display:block}.sheet{display:none}h2{font-size:14px}</style>');
+fetch('/assets/garden/manifest.json').then(function (r) { return r.json(); }).then(function (m) {
+  m.fish.filter(function (f) { return !f.legacy && (!Q.get('type') || f.type === Q.get('type')); }).forEach(function (f) {
+    var box = document.createElement('section');
+    box.className = 'kind';
+    box.innerHTML = '<h2></h2><img class="sheet"><img class="ready">';
+    box.querySelector('h2').textContent = f.title + ' — ' + f.name;
+    box.querySelector('.sheet').src = '/' + f.svg + '?v=' + Date.now();
+    box.querySelector('.ready').src = '/' + f.ready + '?v=' + Date.now();
+    document.getElementById('list').appendChild(box);
+  });
+});
+</script>
+</body>
+</html>

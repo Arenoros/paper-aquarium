@@ -83,10 +83,13 @@ function serve() {
 
   console.log('Браузер: ' + chrome);
   try {
-    for (const [lang, per] of LANGS.flatMap((l) => ['1', '4', '6'].map((p) => [l, p]))) {
+    // Аквариум и сад: node tools/make-pdf.js [aquarium|garden] — только один мир.
+    const worlds = [['aquarium', OUT, 'raskraski', ''], ['garden', path.join(ROOT, 'assets', 'garden'), 'sad', '&world=garden']]
+      .filter(([w]) => !process.argv[2] || process.argv[2] === w);
+    for (const [, dir, base, world, lang, per] of worlds.flatMap((w) => LANGS.flatMap((l) => ['1', '4', '6'].map((p) => [...w, l, p])))) {
       const suffix = per === '1' ? '' : '-' + per;
-      const out = path.join(OUT, 'raskraski' + suffix + '.' + lang + '.pdf');
-      const url = 'http://127.0.0.1:' + port + '/print.html?lang=' + lang + '&pdf=1' + (suffix && '&per=' + per);
+      const out = path.join(dir, base + suffix + '.' + lang + '.pdf');
+      const url = 'http://127.0.0.1:' + port + '/print.html?lang=' + lang + '&pdf=1' + world + (suffix && '&per=' + per);
       // Chrome запускается асинхронно: страницу ему отдаёт наш же сервер,
       // и синхронный запуск запер бы event loop — Chrome ждёт страницу,
       // сервер ждёт Chrome.

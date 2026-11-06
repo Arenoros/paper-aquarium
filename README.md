@@ -74,20 +74,34 @@ version — any printed sheet is recognised.
 ![Garden with coloured butterflies and flowers](docs/screenshots/garden.jpg)
 
 Choose **New garden** on the home page or **Living garden** in the aquarium
-menu. Colour the butterfly and flower sheets, photograph them, and watch
-butterflies visit your flowers. Nectar calls them over; sunshine and rain
-sync across open screens. Ready-made drawings let you try it without printing.
+menu. It is a 3D meadow: coloured butterflies flap, glide, land on coloured
+flowers and bask with open wings. There are 14 kinds — six butterflies
+(morpho, comet moth, birdwing, owl butterfly, heliconius, sunset moth) and
+eight flowers (hibiscus, sunflower, bird of paradise, orchid, iris, tiger lily,
+foxglove, protea).
 
-Switching worlds keeps both fish and garden drawings. The drawings page only
-removes items from its own world, into the existing bin. The 40-item limit is
-shared. The garden also works offline on Android TV: its lightweight Canvas
-scene runs in a WebView while the aquarium keeps its native Filament renderer.
-No purchased models are needed for the garden.
+Nectar calls the butterflies to the flowers. Rain rolls in clouds, the
+butterflies hide on flowers with folded wings, and a rainbow follows. Weather
+syncs across open screens. Tap a butterfly to scare it off, tap a flower to
+sway it. Ready-made drawings plant three flowers and two butterflies in their
+natural colours, no printer needed.
 
-Generate the two A4 sheets in all three languages with `npm run garden`.
-Print at `/print.html?world=garden` and check recognition at
-`/tools/test-capture.html?world=garden`. Garden marker codes are distinct from
-all fish codes; capture, storage and backups use the existing format.
+Switching worlds keeps both fish and garden drawings; each world has its own
+40-item limit. The drawings page only removes items from its own world, into
+the existing bin.
+
+The garden also works offline on Android TV: the same three.js scene runs in a
+WebView at 1440×810 (31–36 fps with 40 drawings on a Haier TV, see
+[ADR 0003](docs/adr/0003-garden-world.md)), while the aquarium keeps its native
+Filament renderer. No purchased models are needed for the garden.
+
+The kinds are drawn in `tools/garden-art.js`; `npm run garden` builds the
+sheets in three languages (one, four or six per A4), the ready-made drawings
+and 3D parameters in `assets/garden/`, and `node tools/make-pdf.js garden`
+builds the PDFs. Print at `/print.html?world=garden`; see every kind at
+`/tools/garden-gallery.html` and a scene with any number of drawings at
+`/tools/garden-proto.html?f=8&b=6`. Garden marker codes are distinct from all
+fish codes; check recognition at `/tools/test-capture.html?world=garden`.
 
 ## Running it
 

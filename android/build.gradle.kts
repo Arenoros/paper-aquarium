@@ -49,9 +49,12 @@ android {
         }
     }
     buildTypes {
-        // Без пароля debug подписывается отладочным ключом — годится только
-        // для пробников без данных, перед настоящей установкой их удаляют.
-        debug { if (storePass != null) signingConfig = signingConfigs.getByName("aqua") }
+        // Без пароля debug подписывается отладочным ключом и ставится рядом
+        // с настоящим приложением (.debug), не задевая рисунки на ТВ.
+        debug {
+            if (storePass != null) signingConfig = signingConfigs.getByName("aqua")
+            else applicationIdSuffix = ".debug"
+        }
         release {
             signingConfig = signingConfigs.getByName("aqua")
             val autoUpdate = providers.gradleProperty("aquaAutoUpdate").orNull == "true"

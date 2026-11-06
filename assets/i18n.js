@@ -818,7 +818,8 @@
       'garden.cap.done.sub': 'Посмотри на большой экран: там появился твой рисунок.',
       'garden.cap.done.sub.embed': 'Закрой это окно — твой рисунок уже в саду.',
       'garden.cap.again': 'Оживить ещё один рисунок', 'garden.cap.itis': 'Это {name}!',
-      'garden.print.title': 'Бабочка и цветок — листы раскрасок',
+      'garden.print.title': 'Бабочки и цветы — листы раскрасок', 'garden.print.pdf.file': 'раскраски-сад.pdf', 'garden.print.per': 'Рисунков на листе',
+      'garden.print.note.many': 'Когда на листе несколько рисунков, у каждого свои чёрные квадраты. Разрежь лист по серому пунктиру или фотографируй один рисунок крупно, чтобы все четыре его квадрата попали в кадр.',
       'garden.print.note': 'Распечатай лист на A4 без полей, раскрась и сфотографируй для живого сада.',
       'garden.print.note2': 'Чёрные метки по углам оставь нетронутыми. Всё внутри контура можно раскрашивать!',
       'garden.adm.empty': 'В саду пока нет рисунков.',
@@ -826,7 +827,8 @@
       'garden.adm.clear': 'Убрать все рисунки сада', 'garden.adm.clear.title': 'Убрать рисунки из сада?',
       'garden.adm.clear.text': 'В корзину переедут рисунки сада: {n}. Рыбки останутся в аквариуме.',
       'garden.adm.fish.del.title': 'Убрать этот рисунок?',
-      'garden.adm.fish.del.painted': 'Рисунок переедет в корзину. Его можно будет вернуть из данных приложения.'
+      'garden.adm.fish.del.painted': 'Рисунок переедет в корзину на сервере — если что, его можно вернуть.',
+      'garden.adm.fish.del.painted.tv': 'Рисунок переедет в корзину на телевизоре. Она попадает в резервную копию, так что рисунок можно вернуть.'
     },
     en: {
       'garden.title': 'Living garden', 'garden.new': 'New garden', 'garden.open': 'Into the garden!',
@@ -852,7 +854,8 @@
       'garden.cap.done.sub': 'Look at the big screen: your drawing has appeared.',
       'garden.cap.done.sub.embed': 'Close this window — your drawing is in the garden.',
       'garden.cap.again': 'Bring another drawing to life', 'garden.cap.itis': 'It is a {name}!',
-      'garden.print.title': 'Butterfly and flower colouring sheets',
+      'garden.print.title': 'Butterflies and flowers — colouring sheets', 'garden.print.pdf.file': 'garden-colouring-sheets.pdf', 'garden.print.per': 'Drawings per page',
+      'garden.print.note.many': 'When a page has several drawings, each one has its own black squares. Cut the page along the grey dashed lines, or photograph one drawing close up so that all four of its squares are in the frame.',
       'garden.print.note': 'Print on A4 without margins, colour the sheet and photograph it for the living garden.',
       'garden.print.note2': 'Leave the black corner markers untouched. Colour everything inside the outline!',
       'garden.adm.empty': 'No drawings in the garden yet.',
@@ -860,7 +863,8 @@
       'garden.adm.clear': 'Remove all garden drawings', 'garden.adm.clear.title': 'Remove the garden drawings?',
       'garden.adm.clear.text': '{n} garden drawings will move to the bin. Fish will stay in the aquarium.',
       'garden.adm.fish.del.title': 'Remove this drawing?',
-      'garden.adm.fish.del.painted': 'The drawing will move to the bin and can be recovered from the app data.'
+      'garden.adm.fish.del.painted': 'The drawing moves to the bin on the server — it can be brought back.',
+      'garden.adm.fish.del.painted.tv': 'The drawing moves to the bin on the TV. The bin is part of the backup, so the drawing can be brought back.'
     },
     pl: {
       'garden.title': 'Żywy ogród', 'garden.new': 'Nowy ogród', 'garden.open': 'Do ogrodu!',
@@ -886,7 +890,8 @@
       'garden.cap.done.sub': 'Spójrz na duży ekran: pojawił się tam twój rysunek.',
       'garden.cap.done.sub.embed': 'Zamknij to okno — twój rysunek jest już w ogrodzie.',
       'garden.cap.again': 'Ożyw kolejny rysunek', 'garden.cap.itis': 'To {name}!',
-      'garden.print.title': 'Motyl i kwiat — kolorowanki',
+      'garden.print.title': 'Motyle i kwiaty — kolorowanki', 'garden.print.pdf.file': 'kolorowanki-ogrod.pdf', 'garden.print.per': 'Rysunków na kartce',
+      'garden.print.note.many': 'Gdy na kartce jest kilka rysunków, każdy ma własne czarne kwadraty. Rozetnij kartkę wzdłuż szarych przerywanych linii albo sfotografuj jeden rysunek z bliska, tak żeby wszystkie cztery jego kwadraty były w kadrze.',
       'garden.print.note': 'Wydrukuj na A4 bez marginesów, pokoloruj i zrób zdjęcie do żywego ogrodu.',
       'garden.print.note2': 'Nie zamalowuj czarnych znaczników w rogach. Wszystko wewnątrz konturu możesz kolorować!',
       'garden.adm.empty': 'W ogrodzie nie ma jeszcze rysunków.',
@@ -894,7 +899,8 @@
       'garden.adm.clear': 'Usuń wszystkie rysunki ogrodu', 'garden.adm.clear.title': 'Usunąć rysunki z ogrodu?',
       'garden.adm.clear.text': 'Do kosza trafią rysunki ogrodu: {n}. Rybki zostaną w akwarium.',
       'garden.adm.fish.del.title': 'Usunąć ten rysunek?',
-      'garden.adm.fish.del.painted': 'Rysunek trafi do kosza. Można go odzyskać z danych aplikacji.'
+      'garden.adm.fish.del.painted': 'Rysunek trafi do kosza na serwerze — w razie czego można go przywrócić.',
+      'garden.adm.fish.del.painted.tv': 'Rysunek trafi do kosza na telewizorze. Kosz trafia do kopii zapasowej, więc rysunek można przywrócić.'
     }
   };
   LANGS.forEach(function (lang) { Object.assign(DICT[lang], GARDEN[lang]); });

@@ -160,10 +160,12 @@ class TankServer(
     //   раскрашенные — {kind, texture}: рядом с записью ложится <id>.png;
     //   готовые      — {type:'pack', model}: картинка своя, внутри модели.
     private fun addFish(body: JSONObject?): Response {
-        if (store.count() >= Aquarium.MAX_FISH) {
+        val data = body ?: return json(Response.Status.BAD_REQUEST, """{"error":"тело запроса не JSON"}""")
+        // Предел — свой у каждого мира: рыбки не отнимают место у рисунков сада.
+        val garden = data.optString("type") != "pack" && data.optString("kind").startsWith("garden-")
+        if (store.fish().count { it.kind.startsWith("garden-") == garden } >= Aquarium.MAX_FISH) {
             return json(Response.Status.CONFLICT, JSONObject().put("error", "в аквариуме уже ${Aquarium.MAX_FISH} рыбок — тесно").toString())
         }
-        val data = body ?: return json(Response.Status.BAD_REQUEST, """{"error":"тело запроса не JSON"}""")
         if (data.optString("type") == "pack") {
             val model = data.optString("model")
             val item = packItems().firstOrNull { it.optString("name") == model }
