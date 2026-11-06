@@ -94,3 +94,20 @@ test('a tap scares a sitting butterfly off its flower', () => {
   fly(b, 20, 21, { perches: [flower], rain: 0, others: [b] });
   assert.ok(b.z < flower.p.z + 0.5 || b.y > flower.p.y, 'flies away from the viewer');
 });
+
+// Сетка цветка: earcut сшивал ровные ряды опорных точек щепками, на изгибе их
+// нормали смотрели вбок — по цветку шли тёмные полосы. Вбок могут смотреть
+// только края трубки-стебля и загнутые кромки, это единицы вершин.
+test('flower meshes are lit smoothly: almost no vertex normal points sideways', () => {
+  globalThis.THREE = require('../vendor/three.min.js');
+  globalThis.GardenFlight = flight;
+  globalThis.window = globalThis;
+  require('../assets/garden-world.js');
+  const canvas = { width: 1, height: 1, getContext: () => ({ getImageData: () => ({ data: [90, 140, 70, 255] }) }) };
+  for (const spec of garden.fish.filter(f => f.type === 'flower' || f.name === 'garden-flower')) {
+    const n = window.GardenWorld.buildFlower(spec, { dispose() {} }, canvas).mesh.geometry.getAttribute('normal');
+    let sideways = 0;
+    for (let i = 0; i < n.count; i++) if (n.getZ(i) < 0.3) sideways++;
+    assert.ok(sideways / n.count < 0.02, `${spec.name}: ${sideways} of ${n.count}`);
+  }
+});

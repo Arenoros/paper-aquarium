@@ -89,13 +89,46 @@
     }
     return out;
   }
+  // Earcut цепляет каждую «дырку» мостом влево — выходят длинные щепки. На
+  // плоскости их не видно, но на выгнутом цветке нормаль щепки смотрит
+  // вверх-вниз, и свет по вершинам рисует тёмные полосы. Перекидываем рёбра до
+  // Делоне; у края контура один треугольник — он на месте.
+  function delaunay(v, faces) {
+    var orient = function (a, b, c) { return (v[b].x - v[a].x) * (v[c].y - v[a].y) - (v[b].y - v[a].y) * (v[c].x - v[a].x); };
+    var key = function (a, b) { return a < b ? a + ',' + b : b + ',' + a; };
+    var edges = new Map(), stack = [];
+    var link = function (a, b, t) { var k = key(a, b), e = edges.get(k); if (e) e.push(t); else { edges.set(k, [t]); stack.push(k); } };
+    var relink = function (a, b, from, to) { var e = edges.get(key(a, b)); e[e.indexOf(from)] = to; stack.push(key(a, b)); };
+    faces.forEach(function (f, t) { link(f[0], f[1], t); link(f[1], f[2], t); link(f[2], f[0], t); });
+    var sign = Math.sign(faces.reduce(function (s, f) { return s + orient(f[0], f[1], f[2]); }, 0)) || 1;
+    var EPS = 1e-10, ok = function (a, b, c) { return orient(a, b, c) * sign > EPS; };
+    for (var guard = faces.length * 30; stack.length && guard > 0; guard--) {
+      var k = stack.pop(), e = edges.get(k);
+      if (!e || e.length < 2) continue;
+      var t1 = faces[e[0]], t2 = faces[e[1]], ab = k.split(',').map(Number);
+      // t1 = (a, b, c) по своему обходу, тогда t2 = (b, a, d)
+      var i = t1.indexOf(ab[0]), a = ab[0], b = ab[1];
+      if (t1[(i + 1) % 3] !== b) { a = ab[1]; b = ab[0]; i = t1.indexOf(a); }
+      var c = t1[(i + 2) % 3], d = t2[(t2.indexOf(b) + 2) % 3];
+      var ax = v[a].x - v[d].x, ay = v[a].y - v[d].y, bx = v[b].x - v[d].x, by = v[b].y - v[d].y, cx = v[c].x - v[d].x, cy = v[c].y - v[d].y;
+      var inCircle = (ax * ax + ay * ay) * (bx * cy - cx * by) - (bx * bx + by * by) * (ax * cy - cx * ay) + (cx * cx + cy * cy) * (ax * by - bx * ay);
+      if (inCircle * sign <= 1e-12 || !ok(a, d, c) || !ok(d, b, c)) continue;
+      var n1 = e[0], n2 = e[1];
+      faces[n1] = [a, d, c]; faces[n2] = [d, b, c];
+      edges.delete(k); edges.set(key(c, d), [n1, n2]);
+      relink(a, d, n2, n1); relink(b, c, n1, n2); stack.push(key(c, a), key(d, b));
+    }
+    return faces;
+  }
+
   // Треугольники по контуру; точки внутри — «дырки» из одной вершины, earcut
   // берёт их как опорные: поверхность можно гнуть.
   function sheetGeometry(contour, steiner, toPos, toUv) {
     var shape = contour.map(function (p) { return new T.Vector2(p[0], p[1]); });
     var holes = steiner.map(function (p) { return [new T.Vector2(p[0], p[1])]; });
-    var faces = T.ShapeUtils.triangulateShape(shape, holes);
+    var faces = T.ShapeUtils.triangulateShape(shape, holes);   // срезает повтор концевой точки — all после
     var all = shape.concat.apply(shape, holes), pos = [], uv = [], idx = [];
+    faces = delaunay(all, faces);
     all.forEach(function (v) { var p = toPos(v.x, v.y), u = toUv(v.x, v.y); pos.push(p[0], p[1], p[2]); uv.push(u[0], u[1]); });
     faces.forEach(function (f) { idx.push(f[0], f[1], f[2]); });
     var g = new T.BufferGeometry();
@@ -207,8 +240,12 @@
     var scale = (t3.size || 0.5) / (2 * bl.r), z = bend(t3), base = t3.base;
     var drawn = (bl.c[1] - base[1]) * scale;
     var extra = Math.max(0, t3.height - drawn);
+    // Опорные точки — решётка со сдвигом: ровный ряд на одной прямой earcut
+    // сшивает щепкой через весь цветок, и ряд точек повисает на её ребре.
     var step = cw / 34, steiner = [], contour = spec.contourModel;
-    for (var x = bb.z[0] + step / 2; x < bb.z[1]; x += step) for (var y = bb.y[0] + step / 2; y < bb.y[1]; y += step) {
+    var jit = function (a, b) { var s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return (s - Math.floor(s) - 0.5) * step * 0.3; };
+    for (var gx = bb.z[0] + step / 2; gx < bb.z[1]; gx += step) for (var gy = bb.y[0] + step / 2; gy < bb.y[1]; gy += step) {
+      var x = gx + jit(gx, gy), y = gy + jit(gy, gx);
       if (inside(contour, x, y) && edgeDist(contour, x, y) > step * 0.4) steiner.push([x, y]);
     }
     var g = facingFix(sheetGeometry(contour, steiner,
@@ -689,5 +726,6 @@
     this.rain.update(dt, rain, flowers);
   };
 
+  World.buildFlower = buildFlower;   // для теста сетки
   window.GardenWorld = World;
 })();
